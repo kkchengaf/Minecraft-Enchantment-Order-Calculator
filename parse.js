@@ -103,18 +103,10 @@ function addEnchantmentListItem(item_value) {
       let enchant_minus = document.createElement("div")
       enchant_minus.classList.add("enchantment-list-minus-lv")
       enchant_minus.setAttribute("title", "reduce 1 level")
-      enchant_minus.addEventListener("click", e => {
-          let node = e.target.parentNode.firstElementChild
-          node.innerHTML = Math.max(1, parseInt(node.innerHTML) - 1)
-      })
 
       let enchant_max = document.createElement("div")
       enchant_max.classList.add("enchantment-list-max-lv")
       enchant_max.setAttribute("title", "set to max level")
-      enchant_max.addEventListener("click", e => {
-          let node = e.target.parentNode.firstElementChild
-          node.innerHTML = node.getAttribute("max_lv")
-      })
 
 
       let enchant_input = document.createElement("input")
@@ -134,11 +126,23 @@ function addEnchantmentListItem(item_value) {
           let max_lv_value = max_lv[Number(parser[value]).toString()]
           lv.setAttribute("contenteditable", 'true')
           lv.setAttribute("max_lv", max_lv_value)
+          lv.classList.add("show-outline")
           lv.innerHTML = "1"
           let max_lv_node = node.parentNode.children[2]
           max_lv_node.innerHTML = "(max. "+max_lv_value+")"
+          max_lv_node.classList.add("cursor-pointer")
+          max_lv_node.addEventListener("click", e => {
+              let node = e.target.parentNode.firstElementChild
+              node.innerHTML = node.getAttribute("max_lv")
+          })
 
-          node.parentNode.children[1].innerHTML = "<"
+          let enchant_minus_node = node.parentNode.children[1]
+          enchant_minus_node.innerHTML = "<"
+          enchant_minus_node.classList.add("cursor-pointer")
+          enchant_minus_node.addEventListener("click", e => {
+              let node = e.target.parentNode.firstElementChild
+              node.innerHTML = Math.max(1, parseInt(node.innerHTML) - 1)
+          })
 
           if(node.parentNode.parentNode.lastElementChild===node.parentNode) {
               let item_value = enchant_input.getAttribute("list")
@@ -232,7 +236,7 @@ document.getElementById("selectoutput").addEventListener("change", e => {
             return acc + "<hr>"
         }
         return acc + "<div class='enchantment' value='"+parser[cur]+"'>"+displayfun(parser[cur])
-                +"<div class='lv_wrap'><div group="+n_group+" onfocusout='validate_goal_level(event)' class='lv' title='click to change level' contenteditable='true'>0</div>"
+                +"<div class='lv_wrap'><div group="+n_group+" onfocusout='validate_goal_level(event)' class='lv show-outline' title='click to change level' contenteditable='true'>0</div>"
                 + " <div title='set to max level' ondblclick='setZeroLv(this)' onclick='setMaxLv(this)' max_lv='"+max_lv[cur]+"'>(max. "+max_lv[cur]+")</div>"+"</div></div>"
     }, "")
 })
