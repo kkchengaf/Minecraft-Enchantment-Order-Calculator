@@ -1,0 +1,248 @@
+
+    body {
+        font-family: monospace;
+        padding-bottom: 128px;
+        overflow-x: hidden;
+        max-width: 95%;
+    }
+    .pad {
+      padding-left: 64px;
+      padding-right: 64px;
+    }
+    .pad-small {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+    .pad-medium {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+    .pad-top {
+      padding-top: 32px;
+    }
+    .right-align {
+      text-align: right;
+    }
+    .div-title {
+      padding: 16px;
+      padding-top: 0px;
+      font-size: 1.2vw;
+      max-width: 97%;
+      margin-top: -8px;
+      max-height: 25%;
+    }
+    .div-col-con {
+      display: flex;
+      justify-content: space-around;
+      align-content: space-around;
+    }
+    .div-col-cell {
+      width: 45%;
+    }
+
+    .div-col {
+      font-size: 16px;
+      width: 100%;
+      max-height: 600px;
+      transition: 2s;
+    }
+    .div-col div {
+      font-size: 16px;
+      padding: 3px;
+      opacity: 1;
+      padding-left: 64px;
+      transition: opacity 1s;
+    }
+    .div-col div:first-child {
+      padding-top: 20px;
+    }
+
+    .hide {
+      max-height: 30px;
+      overflow: hidden;
+      transition: 1s;
+    }
+
+    .hide div {
+      opacity: 0;
+      transition: opacity 1s;
+    }
+
+    #input,#output {
+      font-size:18px;
+    }
+
+    select {
+      margin-bottom: 12px;
+      height: 32px;
+      font-size:18px;
+      width: 60%;
+    }
+
+    #output, .input-enchant-item {
+        margin-top: 18px;
+    }
+
+    .input-enchant-item {
+        background: var(--color-theme1);
+        padding-left: 8px;
+    }
+
+    option {
+      height: 32px;
+    }
+
+    .enchantment {
+      width: 100%;
+      padding: 3px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .enchantment:hover {
+      background-color: var(--color-theme2);
+    }
+
+    .enchantment-list-item{
+        display: flex;
+        justify-content: space-evenly;
+        padding: 5px;
+        height: 34px;
+        position: relative;
+    }
+
+    .enchantment .lv,.enchantment-list-lv,.enchantment-list-max-lv, .enchantment-list-minus-lv {
+        outline: none;
+    }
+
+    .enchantment-list-lv {
+        margin-left: 15px;
+        margin-right: 15px;
+        height: 25px;
+    }
+    .enchantment-list-max-lv {
+        width: 63px;
+        font-size: 14px;
+        margin-top: 1px;
+        line-height: 18px;
+        height: 20px;
+        border-radius: 6px;
+        padding: 2px;
+    }
+
+    .enchantment-list-minus-lv {
+        width: 30px;
+        height: 16px;
+        padding: 4px;
+        user-select: none;
+        text-align: center;
+        border-radius: 6px;
+        line-height: 10px;
+        margin-top: 2px;
+        position: absolute;
+        left: -18px;
+    }
+
+    .enchantment.highlight {
+        font-weight: bold;
+    }
+
+    .lv_wrap {
+      display: flex;
+      background: var(--color-theme1);
+      padding: 0 3px 0 13px;
+    }
+    .lv_wrap .lv {
+      margin-right: 24px;
+      height: 25px;
+    }
+
+    .lv_wrap div:last-child,.cursor-pointer {
+        cursor: pointer;
+        user-select: none;
+    }
+
+
+    input {
+        outline: none;
+        border: none;
+        height: 26px;
+        font-size: 18px;
+        text-align: center;
+        font-family: monospace;
+        width: 50%;
+        border-bottom: 1px solid gray;
+    }
+
+
+
+    .enchantment:hover .show-outline:after,
+    .enchantment-list-item:hover .show-outline:after,
+    .show-outline:focus:after {
+        content: "";
+        background: black;
+        position: absolute;
+        bottom: 1px;
+        left: -8px;
+        height: 1px;
+        width: 300%;
+    }
+
+    .show-outline {
+        position: relative;
+    }
+
+    #search-button {
+        cursor: pointer;
+        margin: auto;
+        margin-top: 20px;
+        width: 80%;
+        text-align: center;
+        height: 60px;
+        line-height: 60px;
+        background: lightgray;
+        border-radius: 6px;
+        user-select: none;
+    }
+
+    #search-button:hover {
+        box-shadow: darkgrey 0 0 3px;
+    }
+
+    #error-message {
+        width: 80%;
+        text-align: center;
+        font-size: 17px;
+        margin: auto;
+        margin-top: 20px;
+    }
+
+    #result-tree {
+
+    }
+
+    .anvil-pair {
+        display: flex;
+        margin: auto;
+        width: 961px;
+    }
+
+    .tree-item,.anvil-pair span {
+        padding: 24px;
+        font-size: 16px;
+        font-family: monospace;
+        text-align: center;
+    }
+    .tree-item {
+        width: 250px;
+    }
+
+    .tree-item span {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    :root {
+        --color-theme1: #e1e1e1;
+        --color-theme2: #e1e1e1;
+    }

@@ -16,242 +16,19 @@
     <meta property="twitter:url" content="https://kkchengaf.github.io/Minecraft-Enchantment-Order-Calculator/">
     <meta property="twitter:title" content="Minecraft Enchantment Order Calculator">
     <meta property="twitter:description" content="Minecraft optimal enchantment order calculator in anvil. Search the best enchanting order within a second. ">
-
+      <link rel="stylesheet" href="style.css">
       <script type="text/javascript" src="search.js"></script>
-      <style media="screen">
-          body {
-              font-family: monospace;
-              padding-bottom: 128px;
-          }
-          .pad {
-            padding-left: 64px;
-            padding-right: 64px;
-          }
-          .pad-small {
-            padding-left: 16px;
-            padding-right: 16px;
-          }
-          .pad-medium {
-            padding-left: 16px;
-            padding-right: 16px;
-          }
-          .pad-top {
-            padding-top: 32px;
-          }
-          .right-align {
-            text-align: right;
-          }
-          .div-title {
-            padding: 16px;
-            padding-top: 0px;
-            font-size:24px;
-          }
-          .div-col-con {
-            display: flex;
-            justify-content: space-around;
-            align-content: space-around;
-          }
-          .div-col-cell {
-            width: 45%;
-          }
-
-          .div-col {
-            font-size: 20px;
-            width: 100%;
-            max-height: 600px;
-            transition: 2s;
-          }
-          .div-col div {
-            font-size: 16px;
-            padding: 3px;
-            opacity: 1;
-            padding-left: 64px;
-            transition: opacity 1s;
-          }
-          .div-col div:first-child {
-            padding-top: 20px;
-          }
-
-          .hide {
-            max-height: 30px;
-            overflow: hidden;
-            transition: 1s;
-          }
-
-          .hide div {
-            opacity: 0;
-            transition: opacity 1s;
-          }
-
-          #input,#output {
-            font-size:18px;
-          }
-
-          select {
-            margin-bottom: 12px;
-            height: 32px;
-            font-size:18px;
-            width: 60%;
-          }
-
-          #output, .input-enchant-item {
-              margin-top: 32px;
-          }
-
-          option {
-            height: 32px;
-          }
-
-          .enchantment {
-            width: 100%;
-            padding: 3px;
-            display: flex;
-            justify-content: space-between;
-          }
-
-          .enchantment-list-item{
-              display: flex;
-              justify-content: space-around;
-              padding: 5px;
-              height: 34px;
-              position: relative;
-          }
-
-          .enchantment .lv,.enchantment-list-lv,.enchantment-list-max-lv, .enchantment-list-minus-lv {
-              outline: none;
-          }
-
-          .enchantment-list-lv {
-              margin-left: 15px;
-              margin-right: 15px;
-              height: 25px;
-          }
-          .enchantment-list-max-lv {
-            width: 63px;
-            font-size: 14px;
-            margin-top: 3px;
-            line-height: 26px;
-          }
-
-          .enchantment-list-minus-lv {
-              width: 30px;
-              height: 16px;
-              padding: 4px;
-              user-select: none;
-              text-align: center;
-              border-radius: 6px;
-              line-height: 10px;
-              margin-top: 2px;
-              position: absolute;
-              left: -24px;
-          }
-
-          .enchantment.highlight {
-              font-weight: bold;
-          }
-
-          .lv_wrap {
-            display: flex;
-          }
-          .lv_wrap .lv {
-            margin-right: 24px;
-          }
-
-          .lv_wrap div:last-child,.cursor-pointer {
-              cursor: pointer;
-              user-select: none;
-          }
-
-
-          input {
-              outline: none;
-              border: none;
-              height: 26px;
-              font-size: 18px;
-              text-align: center;
-              font-family: monospace;
-              width: 240px;
-              border-bottom: 1px solid gray;
-          }
-
-
-
-          .enchantment:hover .show-outline:after,
-          .enchantment-list-item:hover .show-outline:after,
-          .show-outline:focus:after {
-              content: "";
-              background: black;
-              position: absolute;
-              bottom: 1px;
-              left: -8px;
-              height: 1px;
-              width: 300%;
-          }
-
-          .show-outline {
-              position: relative;
-          }
-
-          #search-button {
-              cursor: pointer;
-              margin: auto;
-              margin-top: 20px;
-              width: 80%;
-              text-align: center;
-              height: 60px;
-              line-height: 60px;
-              background: lightgray;
-              border-radius: 6px;
-              user-select: none;
-          }
-
-          #search-button:hover {
-              box-shadow: darkgrey 0 0 3px;
-          }
-
-          #error-message {
-              width: 80%;
-              text-align: center;
-              font-size: 17px;
-              margin: auto;
-              margin-top: 20px;
-          }
-
-          #result-tree {
-
-          }
-
-          .anvil-pair {
-              display: flex;
-              margin: auto;
-              width: 961px;
-          }
-
-          .tree-item,.anvil-pair span {
-              padding: 24px;
-              font-size: 16px;
-              font-family: monospace;
-              text-align: center;
-          }
-          .tree-item {
-              width: 250px;
-          }
-
-          .tree-item span {
-              font-size: 18px;
-              font-weight: bold;
-          }
-
-
-      </style>
   </head>
   <body class="pad pad-top">
     <div class="div-title">
-        Calculate the most optimal enchantment order in Minecraft (in anvil).
-        Select the item, select the enchantment, change the enchantment level.
-        Once everything is set, click search.
-        To remove an item, select the empty option in drop down list.
-        It is optional to select the output target enchantments.
+        Calculate the most optimal enchantment order in Minecraft (in anvil). There are 2 use cases fulfilled by this tool:<br>
+        (1) If you want to combine books with 1 enchant to an item, click the item in "You Want" and select the enchantments there.<br>
+        (2) If you want to combine multiple items/books, add them in "You Have" and select the enchantment on each item/book there.<br>
+        In (2), if you want your final outcome to have specific enchant level, select them in "You Want".<br><br>
+
+        To select an enchantment, click on and change the number next to enchant name. You can also click on "max" to set the level.<br>
+        In (2), you have to first add the enchant on your item one by one in "enchant with" for all item you have.<br>
+        To remove an item/enchant, select the blank/delete to make it disappear. Once everything is set, click search. <br>
     </div>
     <div class="right-align">
         Reference Page: <a href="https://minecraft.fandom.com/wiki/Anvil_mechanics" target="_blank">Minecraft Fandom Wiki</a>
@@ -263,12 +40,9 @@
         <div class="div-col-cell">
             <div class="div-col hide">
             Capable to search in :
-            <div class="">enchanted book + enchanted book</div>
-            <div class="">item + enchanted book</div>
-            <div class="">enchanted item + enchanted item</div>
-            <div class="">enchanted item + enchanted book</div>
-            <div class="">books with more than 1 enchantment</div>
-            <div class="">combining 3 to 8 item/books</div>
+            <div class="">(1) item + books with 1 enchantment</div>
+            <div class="">(2) enchanted items/books + enchanted items/books</div>
+            <div class="">(2) item + books with multiple enchantment</div>
             </div>
 
             <div class="" id="input">
@@ -282,11 +56,11 @@
               Out of Scope:
               <div class="">renaming/repair</div>
               <div class="">combining more than 8 item/books</div>
-              <div class="">enchanted books with non zero prior penalty</div>
+              <div class="">non zero prior work penalty item/book</div>
             </div>
 
             <div class="" id="output"><hr>
-                Output Target: <select name="item" id="selectoutput"></select>
+                You Want: <select name="item" id="selectoutput"></select>
                 <div class="" id="output-enchantments">
                 </div>
                 <div class="button" id="search-button" onclick="prune()">Search</div>

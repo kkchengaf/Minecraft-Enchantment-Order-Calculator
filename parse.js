@@ -50,7 +50,7 @@ document.getElementById("datalist-area").innerHTML =
 function addInputItem() {
       let outer = document.createElement("div")
       outer.classList.add("input-enchant-item")
-      outer.innerHTML = "<hr>Input Item: "
+      outer.innerHTML = "<hr>You Have: "
 
       let dropdown = document.createElement("select")
       dropdown.innerHTML = [" "].concat(selectable_tools()).reduce((acc, cur) => acc + "<option value=" +cur+">"+cur.replaceAll("_", " ")+"</option>", "")
@@ -329,8 +329,12 @@ function validate_input(res_pack) {
     }
     let indctlst = res_pack["inputs"]
     if(0 < indctlst.length && indctlst.length < 3) {
-        return -700;
+        return ((Object.keys(outdct).length > 0)?-700:-701);
     }
+    if(indctlst.length==0 && Object.keys(outdct).length==0) {
+        return -698;
+    }
+    //output enchantment is not selected
     if(Object.keys(outdct).filter(ele=>ele!=="item").length===0 && indctlst.length < 3) {
         return -699;
     }
@@ -339,18 +343,18 @@ function validate_input(res_pack) {
                     .map(indct => indct["item"])
     //non book => book
     if(cur_item==="enchanted_book" && initems.length > 0) {
-        return -701;
+        return -702;
     }
     //books only => non book
     if(cur_item!==null && cur_item!=="enchanted_book"
         && indctlst.length > 0 && initems.length===0) {
-          return -701;
+          return -702;
     }
-    let err_code = -701
+    let err_code = -702
     for(item of initems) {
         if(cur_item===null) {
             cur_item = item
-            err_code = -702
+            err_code = -703
         } else if(cur_item!==item) {
             return err_code;
         }
@@ -358,11 +362,11 @@ function validate_input(res_pack) {
 
     for(const indct of indctlst) {
         if(Object.keys(indct).indexOf("-1") !==-1)
-            return -703;
+            return -704;
         for(const eid of Object.keys(indct)) {
             for(const eidflict of (conflicts[eid] || [])) {
                 if(Object.keys(indct).indexOf(eidflict)!==-1)
-                    return -704;
+                    return -705;
             }
         }
     }
@@ -401,12 +405,14 @@ input only => advance search
 input + ouput => advance search with goal
 
 Error code:
--699: no inputs
--700: not enought inputs (at least 3)
--701: unmatch input and output item
--702: unmatch input items
--703: invalid enchantmnet
--704: conflicted enchantment
+-698: no input/output
+-699: no output enchantment
+-700: not enought inputs (at least 3) to produce right
+-701: not enought inputs (at least 3)
+-702: unmatch input and output item
+-703: unmatch input items
+-704: invalid enchantmnet
+-705: conflicted enchantment
 */
 function prune() {
     progress_indicate("parsing")
@@ -470,7 +476,7 @@ function prune() {
         }
         console.log(res);
         if(res["anvil_cost"] >= 10000 || res["enchant_cost"] >= 10000) {
-            progress_indicate("cannot produce output")
+            progress_indicate("items on left don't have enough enchantment levels\n(click on 'enchant with' to add a enchantment\nclick on a number to change level)")
             return
         }
         let tree = new Tree(res["strc"])
@@ -483,12 +489,14 @@ function prune() {
     } else {
         let error_message = "error message"
         switch (code) {
-            case -699: error_message = "no inputs/output";break;
-            case -700: error_message = "not enough input (at least 3 items)";break;
-            case -701: error_message = "input unmatch output";break;
-            case -702: error_message = "input items unmatch";break;
-            case -703: error_message = "unknown enchantment in input";break;
-            case -704: error_message = "conflicted enchantments in input";break;
+            case -698: error_message = "select something in drop down list";break;
+            case -699: error_message = "you need to select a level \n(click on a number to change level\nclick max to set to max level)";break;
+            case -700: error_message = "you need to have 3 items on left\n(combine 3 items on left to make right item)";break;
+            case -701: error_message = "you need to have 3 items on left\n(click on 'enchant with' to add a enchantment\nclick on a number to change level\nclick max to set to max level)";break;
+            case -702: error_message = "cannot combine (wanted item not match)";break;
+            case -703: error_message = "cannot combine (your item not match)";break;
+            case -704: error_message = "unknown enchantment in your item";break;
+            case -705: error_message = "conflicted enchantments in your item";break;
         }
         progress_indicate(error_message)
     }
