@@ -11,7 +11,7 @@ selectable_tools = () => {
     let outvalue = document.getElementById("selectoutput").getAttribute("value")
     if(outvalue!==null && outvalue !==undefined && outvalue.trim()!=="")
         return [outvalue, "enchanted_book"]
-    let ar = Array.from(document.querySelectorAll("#input select"))
+    let ar = Array.from(document.querySelectorAll("#input .itemselect"))
               .map(ele => ele.getAttribute("value"))
               .filter(value => value!==null && value!==undefined && value.trim()!==""
                       && value!=="enchanted_book")
@@ -24,7 +24,7 @@ function updateDropDown(node) {
     if(node===undefined || node===null)
         document.getElementById("selectoutput").innerHTML = [" "].concat(selectable_tools()).reduce((acc, cur) => acc + "<option value=" +cur+">"+cur.replaceAll("_", " ")+"</option>", "")
 
-    Array.from(document.querySelectorAll("#input select"))
+    Array.from(document.querySelectorAll("#input .itemselect"))
             .filter(ele=>ele!==node && (ele.getAttribute("value")===undefined
                     || ele.getAttribute("value")===null
                     || ele.getAttribute("value").trim()===""))
@@ -54,6 +54,7 @@ function addInputItem() {
 
       let dropdown = document.createElement("select")
       dropdown.innerHTML = [" "].concat(selectable_tools()).reduce((acc, cur) => acc + "<option value=" +cur+">"+cur.replaceAll("_", " ")+"</option>", "")
+      dropdown.classList.add("itemselect")
       dropdown.addEventListener("change", e => {
           let node = e.target
           let value = node.value
@@ -66,17 +67,37 @@ function addInputItem() {
               return;
           }
           if(node.parentNode.lastElementChild===node) {
-              node.parentNode.appendChild(addEnchantmentList(value))
               document.getElementById("input").appendChild(addInputItem())
           } else {
-              enchlist.innerHTML = ""
-              enchlist.appendChild(addEnchantmentListItem(value))
+              node.parentNode.removeChild(node.parentNode.lastElementChild)
+              node.parentNode.removeChild(node.parentNode.lastElementChild)
           }
+          node.parentNode.appendChild(addPriorWorkPenalty())
+          node.parentNode.appendChild(addEnchantmentList(value))
       })
       dropdown.setAttribute("title", "select an item")
       outer.appendChild(dropdown)
       return outer
 }
+
+
+//anvil_cost_idxer, from search.js
+function addPriorWorkPenalty() {
+      let outer = document.createElement("div")
+      outer.innerHTML = "Prior Work penalty: "
+      outer.classList.add("priorwork")
+
+      let dropdown = document.createElement("select")
+      dropdown.innerHTML = anvil_cost_idxer.reduce((acc, cur) => acc + "<option value=" +cur+">"+cur+"</option>", "")
+      dropdown.setAttribute("value", "0")
+      dropdown.addEventListener("change", e=> {
+          let node = e.target
+          node.setAttribute("value", node.value)
+      })
+      outer.appendChild(dropdown)
+      return outer
+}
+
 
 function addEnchantmentListItem(item_value) {
       let inner = document.createElement("div")
@@ -294,6 +315,13 @@ function readPage() {
               if(ele.getAttribute("value")!=="enchanted_book") {
                   tmpdct["item"] = ele.getAttribute("value")
               }
+              let allchild = ele.parentNode.children
+              // prior work
+              let priornode = allchild[allchild.length-2].lastElementChild
+              let priorwork = parseInt(priornode.getAttribute("value"))
+              if(priorwork>0) {
+                  tmpdct["prior"] = priorwork
+              }
               tmplst.push(tmpdct)
         })
         res_pack["inputs"] = tmplst
@@ -370,6 +398,13 @@ function validate_input(res_pack) {
             }
         }
     }
+    if(indctlst.length > 8) {
+        return -706;
+    }
+    let priorcnt = indctlst.map(ele => (ele["prior"] | 0)).filter(ele => ele!==0).length
+    if(priorcnt>0 && indctlst.length >6)
+        return -707;
+
     return 0
 }
 
@@ -413,6 +448,8 @@ Error code:
 -703: unmatch input items
 -704: invalid enchantmnet
 -705: conflicted enchantment
+-706: too many inputs 8
+-707: too many inputs 6
 */
 function prune() {
     progress_indicate("parsing")
@@ -472,6 +509,10 @@ function prune() {
                 })
                 arrdict["goal"] = tmpdct
             }
+            //attach "prior" if prior work item exist
+            let priorcnt = indctlst.map(ele => (ele["prior"] | 0)).filter(ele => ele!==0)
+            arrdict["prior"] = priorcnt.length
+
             res = search(lst, arrdict)
         }
         console.log(res);
@@ -497,6 +538,8 @@ function prune() {
             case -703: error_message = "cannot combine (your item not match)";break;
             case -704: error_message = "unknown enchantment in your item";break;
             case -705: error_message = "conflicted enchantments in your item";break;
+            case -706: error_message = "you have included over 8 items";break;
+            case -707: error_message = "you have included over 6 items";break;
         }
         progress_indicate(error_message)
     }
@@ -512,7 +555,7 @@ function loadNodeValue(value_item, cost, cost2) {
     }
     value_item = value_item["enchant"]
     res_str += "<span>" + (value_item["item"] || "enchanted_book").replaceAll("_", " ") + "</span><br>"
-    Object.keys(value_item).filter(ele => ele!=="item").forEach(eid => {
+    Object.keys(value_item).filter(ele => ele!=="item" && ele !=="prior").forEach(eid => {
         res_str += displayfun(parser[eid]) + " " + romanparser(value_item[eid]) + "<br>"
     })
     res_str += "</div>"
@@ -520,23 +563,15 @@ function loadNodeValue(value_item, cost, cost2) {
 }
 
 
-anvil_cost_lst = [0,1,3,7,15,31,63,127,255]
 
-function setTreeHeight(node) {
-    if(node===null)
-        return -1;
-    let h = Math.max(setTreeHeight(node.left), setTreeHeight(node.right)) +1
-    node.height = h
-    return h
-}
 
-function loadTree(node, ldep, rdep) {
+function loadTree(node) {
     if(node.left===null || node.right===-null) {
         return loadNodeValue(node.value)
     }
-    let l = loadTree(node.left, ldep, rdep)
-    let r = loadTree(node.right, ldep, rdep)
-    let anvil_cost = anvil_cost_lst[node.left.height] + anvil_cost_lst[node.right.height]
+    let l = loadTree(node.left)
+    let r = loadTree(node.right)
+    let anvil_cost = node.value["prior"]
     let self = loadNodeValue(node.value, node.value["cost"], anvil_cost)
     let output = '<hr><div class="anvil-pair">' + l
                     + '<span class="">+</span>' + r
@@ -547,6 +582,5 @@ function loadTree(node, ldep, rdep) {
 
 function displayTree(root) {
     document.getElementById("result-tree").innerHTML = ""
-    setTreeHeight(root)
-    loadTree(root, 0, 0)
+    loadTree(root)
 }
