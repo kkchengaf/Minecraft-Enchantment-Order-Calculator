@@ -29,7 +29,8 @@ Calculator: https://kkchengaf.github.io/Minecraft-Enchantment-Order-Calculator/
 ![input_boots2_1](https://user-images.githubusercontent.com/55171652/171380530-5b2c4e93-8e56-472e-9550-42358c50e9bf.PNG)
 ![input_boots2_2](https://user-images.githubusercontent.com/55171652/171380537-070b3255-ff02-4775-a8b9-2de43c65dcdb.PNG)
 ### Search Result: (same boots in mode 1)
-![enchantments_order_boots2](https://user-images.githubusercontent.com/55171652/171353259-1176fccb-17e9-4ed9-be47-08e99b68c845.png)
+![enchantments_order_boots2](https://user-images.githubusercontent.com/55171652/171380873-c674c631-cd6b-4d57-85dc-ecf3747af628.png)
+
 
 
 ## Mode 2 (search to match target)
