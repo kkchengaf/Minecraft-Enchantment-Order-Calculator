@@ -22,18 +22,21 @@ Calculator: https://kkchengaf.github.io/Minecraft-Enchantment-Order-Calculator/
 ## Mode 1 (single enchantment search)
 ![input_boots1_1](https://user-images.githubusercontent.com/55171652/171380488-35a8d4be-4e35-4a67-82d4-9bb149bd8409.PNG)
 ### Search Result:
-![enchantments_order_boots1](https://user-images.githubusercontent.com/55171652/171353212-cc3e2c89-9fb2-4b2c-85c9-f28242af18a2.png)
+![enchantments_order_boots1](https://user-images.githubusercontent.com/55171652/171384057-4b974142-e1b3-4e10-aa76-fa217a24e492.png)
+
 
 
 ## Mode 2 (lowest cost search)
 ![input_boots2_1](https://user-images.githubusercontent.com/55171652/171380530-5b2c4e93-8e56-472e-9550-42358c50e9bf.PNG)
 ![input_boots2_2](https://user-images.githubusercontent.com/55171652/171380537-070b3255-ff02-4775-a8b9-2de43c65dcdb.PNG)
 ### Search Result: (same boots in mode 1)
-![enchantments_order_boots2](https://user-images.githubusercontent.com/55171652/171380873-c674c631-cd6b-4d57-85dc-ecf3747af628.png)
+![enchantments_order_boots2](https://user-images.githubusercontent.com/55171652/171384070-50b21551-9f24-4130-8702-e60ffe5137d8.png)
+
 
 
 
 ## Mode 2 (search to match target)
 ![input_boots3](https://user-images.githubusercontent.com/55171652/171380606-0204bf53-50a3-4cb6-a2fa-4b3e4280ffda.PNG)
 ### Search Result:
-![enchantments_order_boots3](https://user-images.githubusercontent.com/55171652/171353306-042532e2-f17b-4e6a-bb10-634aea8c1de0.png)
+![enchantments_order_boots3](https://user-images.githubusercontent.com/55171652/171384086-8d1c31ab-0ab4-4c32-9f24-ba22abdee885.png)
+
