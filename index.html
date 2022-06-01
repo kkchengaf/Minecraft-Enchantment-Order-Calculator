@@ -21,16 +21,16 @@
       <script type="text/javascript" src="search.js"></script>
   </head>
   <body class="pad pad-top">
-    <div class="div-header banner cursor-pointer" onclick="this.nextElementSibling.classList.toggle('hide');localStorage.setItem('hideguide',document.querySelector('.div-guide').classList.contains('hide'))" title="show guide">
+    <div class="div-header banner cursor-pointer" onclick="toggleGuide(event)">
         Minecraft Enchantment Order Calculator
-        <div class="right-align" title="open a new tab">
+        <div class="right-align" >
             Reference Page: <a href="https://minecraft.fandom.com/wiki/Anvil_mechanics" target="_blank">Minecraft Fandom Wiki</a>
         </div>
-        <div class="right-align" title="open a new tab">
+        <div class="right-align" >
             Github: <a href="https://github.com/kkchengaf/Minecraft-Enchantment-Order-Calculator/" target="_blank">Github</a>
         </div>
     </div>
-    <div class="div-guide div-header cursor-pointer" title="hide guide">
+    <div class="div-guide div-header" title="click on banner to toggler guide">
         <div class="div-title">
             Calculate the most optimal enchantment order in Minecraft. There are 2 Modes available:<br>
             (1) Combining multiple books (with 1 enchantment) to an item: click the item in "You Want" and select the enchantments.<br>

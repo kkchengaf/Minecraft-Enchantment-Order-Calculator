@@ -35,6 +35,7 @@
         padding: 26px 21px 0px 32px;
         padding-left: 60px;
         margin: -40px -74px 16px -74px;
+        user-select: auto;
     }
 
     .row-flex {
@@ -46,6 +47,7 @@
     }
 
     .right-align {
+      cursor: auto;
       font-size: 12px;
       text-align: right;
     }

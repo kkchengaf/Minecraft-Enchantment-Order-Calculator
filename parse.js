@@ -67,6 +67,14 @@ document.getElementById("datalist-area").innerHTML =
       return acc + node
   }, "")
 
+function toggleGuide(e) {
+    let node = e.target
+    if(node.classList.contains("banner")) {
+      node.nextElementSibling.classList.toggle('hide');
+      localStorage.setItem('hideguide',document.querySelector('.div-guide').classList.contains('hide'))
+    }
+}
+
 
 function switchMode(switchTo) {
     switchTo = parseInt(switchTo)
