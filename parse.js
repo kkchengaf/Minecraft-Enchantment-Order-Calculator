@@ -784,9 +784,12 @@ function loadNodeValue(value_item, cost, cost2) {
     return res_str
 }
 
+
+
+
 function drawCanvas() {
     let canvas = document.getElementById("result-tree-canvas").getContext('2d');
-    document.getElementById("result-tree-canvas").height = document.getElementById("result-tree").clientHeight +25
+    document.getElementById("result-tree-canvas").height = document.getElementById("result-tree").clientHeight +50
     canvas.clearRect(0, 0, canvas.width, canvas.height);
     canvas.font = "18px Monospace"
     let anvil_pairs = Array.from(document.querySelectorAll(".anvil-pair"))
@@ -831,6 +834,10 @@ function drawCanvas() {
     canvas.lineTo(600, total_line * line_height)
     canvas.closePath()
     canvas.stroke()
+
+    total_line += 1
+    canvas.font = "13px Monospace"
+    canvas.fillText("To reload, drop this image into " + "https://kkchengaf.github.io/Minecraft-Enchantment-Order-Calculator/", 0, total_line * line_height)
 
     return document.getElementById("result-tree-canvas")
 }
