@@ -19,6 +19,29 @@ selectable_tools = () => {
           return [ar[0], "enchanted_book"]
     return toolsname
 }
+number_dropdown_content = (n) => {
+    let options = ""
+    for(let i = 1;i < n+1; i++) {
+        options = "<option value='" + i +"'>" + i + "</option>" + options
+    }
+    return options
+}
+number_dropdown_zero_content = (n) => {
+    let options = ""
+    for(let i = 0;i < n+1; i++) {
+        options = options + "<option value='" + i +"'>" + i + "</option>"
+    }
+    return options
+}
+enchantment_dropdown = (item) => {
+    return [" "].concat(sorted(enchantbytool[item], key=(a,b)=>a-b)).reduce((acc, eid) => {
+        return acc + "<option value='"+eid+"'>" + displayfun((parser[eid] || " ")) + "</option>"
+    }, "")
+}
+isGodArmorState = () => {
+    return (localStorage.getItem("godarmor")||false)==="true"
+}
+
 
 function updateDropDown(node) {
     if(node===undefined || node===null)
@@ -45,38 +68,95 @@ document.getElementById("datalist-area").innerHTML =
   }, "")
 
 
+function switchMode(switchTo) {
+    switchTo = parseInt(switchTo)
+    Array.from(document.getElementsByClassName("mode-button")).forEach((node, idx) => {
+        let mode = idx + 1
+        if(switchTo === mode) {
+            node.classList.remove("off")
+        } else {
+            node.classList.add("off")
+        }
+    })
+    document.querySelector(".left").style.display = (switchTo===1?"none":"block")
+    localStorage.setItem("searchmode", switchTo)
+}
+
+function loadGodArmor(value) {
+    let cur_option = isGodArmorState()
+    if(value!==undefined) {
+        cur_option = value
+    }
+    let god_button = document.querySelector(".god-armor-option-button")
+    if(cur_option) {
+        god_button.classList.remove("off")
+    } else {
+        god_button.classList.add("off")
+    }
+    console.log("God Armor:", cur_option);
+    localStorage.setItem("godarmor", cur_option)
+}
+
+function toggleGodArmor() {
+    let cur_option = isGodArmorState()
+    loadGodArmor(!cur_option)
+}
+
+function loadPreviousMode() {
+    let cur_mode = localStorage.getItem("searchmode") || 1
+        console.log("Current Mode:",cur_mode);
+    switchMode(cur_mode)
+    if((localStorage.getItem("hideguide") || "false")==="true") {
+        document.querySelector(".div-guide").classList.add('hide')
+    }
+}
+loadPreviousMode()
+loadGodArmor()
 
 
 function addInputItem() {
       let outer = document.createElement("div")
       outer.classList.add("input-enchant-item")
-      outer.innerHTML = "<hr>You Have: "
+      outer.innerHTML = "<hr>"
+
+      let inner = document.createElement("div")
+      inner.classList.add("row-flex")
+      inner.classList.add("row-item-name")
+
+      let dropdownhint = document.createElement("div")
+      dropdownhint.classList.add("select-box-hint")
+      dropdownhint.innerHTML = "You Have"
 
       let dropdown = document.createElement("select")
       dropdown.innerHTML = [" "].concat(selectable_tools()).reduce((acc, cur) => acc + "<option value=" +cur+">"+cur.replaceAll("_", " ")+"</option>", "")
       dropdown.classList.add("itemselect")
+      dropdown.classList.add("select-box-content")
+      dropdown.setAttribute("title", "select an item")
       dropdown.addEventListener("change", e => {
           let node = e.target
           let value = node.value
-          let enchlist = node.parentNode.lastElementChild
+          let itemnode = node.parentNode.parentNode
+          let enchlist = itemnode.lastElementChild
           enchlist.setAttribute("value", value)
           node.setAttribute("value", value)
-          updateDropDown(e.target)
+          updateDropDown(node)
           if(value.trim()==="") {
-              document.getElementById("input").removeChild(node.parentNode)
+              document.getElementById("input").removeChild(itemnode)
               return;
           }
-          if(node.parentNode.lastElementChild===node) {
+          if(itemnode.lastElementChild===node.parentNode) {
               document.getElementById("input").appendChild(addInputItem())
           } else {
-              node.parentNode.removeChild(node.parentNode.lastElementChild)
-              node.parentNode.removeChild(node.parentNode.lastElementChild)
+              itemnode.removeChild(itemnode.lastElementChild)
+              itemnode.removeChild(itemnode.lastElementChild)
           }
-          node.parentNode.appendChild(addPriorWorkPenalty())
-          node.parentNode.appendChild(addEnchantmentList(value))
+          itemnode.appendChild(addPriorWorkPenalty())
+          itemnode.appendChild(addEnchantmentList(value))
       })
-      dropdown.setAttribute("title", "select an item")
-      outer.appendChild(dropdown)
+
+      inner.appendChild(dropdownhint)
+      inner.appendChild(dropdown)
+      outer.appendChild(inner)
       return outer
 }
 
@@ -84,16 +164,19 @@ function addInputItem() {
 //anvil_cost_idxer, from search.js
 function addPriorWorkPenalty() {
       let outer = document.createElement("div")
-      outer.innerHTML = "Prior Work penalty: "
       outer.classList.add("priorwork")
+      outer.classList.add("row-flex")
+      outer.title = "ignore this if this item was not combined from anvil"
+
+      let dropdownhint = document.createElement("div")
+      dropdownhint.classList.add("select-box-hint")
+      dropdownhint.innerText = "Prior Work Penalty"
 
       let dropdown = document.createElement("select")
       dropdown.innerHTML = anvil_cost_idxer.reduce((acc, cur) => acc + "<option value=" +cur+">"+cur+"</option>", "")
-      dropdown.setAttribute("value", "0")
-      dropdown.addEventListener("change", e=> {
-          let node = e.target
-          node.setAttribute("value", node.value)
-      })
+      dropdown.classList.add("select-box-content")
+
+      outer.appendChild(dropdownhint)
       outer.appendChild(dropdown)
       return outer
 }
@@ -103,77 +186,65 @@ function addEnchantmentListItem(item_value) {
       let inner = document.createElement("div")
       inner.classList.add("enchantment-list-item")
 
-      let enchant_lv = document.createElement("div")
-      enchant_lv.innerHTML = ""
+      let wrapper = document.createElement("div")
+      wrapper.classList.add("row-flex")
+
+      let enchant_hint = document.createElement("div")
+      enchant_hint.classList.add("enchantment-list-lv-hint")
+      enchant_hint.classList.add("select-box-hint")
+      enchant_hint.innerText = "Lv"
+
+      let enchant_lv = document.createElement("select")
       enchant_lv.contenteditable = 'false'
       enchant_lv.classList.add("enchantment-list-lv")
+      enchant_lv.classList.add("select-box-content")
       enchant_lv.setAttribute("title", "click to change level")
-      enchant_lv.addEventListener("focusout", e => {
-          let node = e.target
-          let parent = node.parentNode
-          let lv = parseInt(node.innerText);
-          let eid = parser[parent.lastElementChild.getAttribute("value")]
-          if(typeof lv === "number" && lv > 0) {
-              lv = Math.min(lv, max_lv[Number(eid).toString()])
-              node.innerHTML = lv
-          } else {
-              parent.parentNode.removeChild(parent)
-          }
-      })
-
-      let enchant_minus = document.createElement("div")
-      enchant_minus.classList.add("enchantment-list-minus-lv")
-      enchant_minus.setAttribute("title", "reduce 1 level")
-
-      let enchant_max = document.createElement("div")
-      enchant_max.classList.add("enchantment-list-max-lv")
-      enchant_max.setAttribute("title", "set to max level")
 
 
-      let enchant_input = document.createElement("input")
+      let wrapper_i = document.createElement("div")
+      wrapper_i.classList.add("row-flex")
+      wrapper_i.classList.add("enchantment-list-input-wrapper")
+
+      let enchant_input_hint = document.createElement("div")
+      enchant_input_hint.classList.add("select-box-hint")
+      enchant_input_hint.innerText = "Enchant"
+
+      let enchant_input = document.createElement("select")
+      enchant_input.classList.add("select-box-content")
+      enchant_input.classList.add("enchantment-list-input")
+      enchant_input.innerHTML = enchantment_dropdown(item_value)
       enchant_input.setAttribute("list", item_value)
-      enchant_input.setAttribute("placeholder", "enchant with")
       enchant_input.setAttribute("title", "click to select enchantment")
-      enchant_input.addEventListener("focusout", e=> {
+      enchant_input.addEventListener("change", e=> {
           let node = e.target
-          let value = node.value.replaceAll(" ", "_")
+          let value = node.options[node.selectedIndex].value
+          let list_item_parent = node.parentNode.parentNode
           if(value.trim() === "") {
-              if(node.parentNode.parentNode.lastElementChild!==node.parentNode)
-                  node.parentNode.parentNode.removeChild(node.parentNode)
+              if(list_item_parent.parentNode.lastElementChild!==list_item_parent)
+                  list_item_parent.parentNode.removeChild(list_item_parent)
               return;
           }
           node.setAttribute("value", value)
-          let lv = node.parentNode.firstElementChild
-          let max_lv_value = max_lv[Number(parser[value]).toString()]
+          let lv = list_item_parent.querySelector(".enchantment-list-lv")
+          let max_lv_value = max_lv[Number(value).toString()]
           lv.setAttribute("contenteditable", 'true')
           lv.setAttribute("max_lv", max_lv_value)
-          lv.classList.add("show-outline")
-          lv.innerHTML = "1"
-          let max_lv_node = node.parentNode.children[2]
-          max_lv_node.innerHTML = "(max. "+max_lv_value+")"
-          max_lv_node.classList.add("cursor-pointer")
-          max_lv_node.addEventListener("click", e => {
-              let node = e.target.parentNode.firstElementChild
-              node.innerHTML = node.getAttribute("max_lv")
-          })
+          lv.innerHTML = number_dropdown_content(max_lv_value)
+          lv.value = 1
 
-          let enchant_minus_node = node.parentNode.children[1]
-          enchant_minus_node.innerHTML = "<"
-          enchant_minus_node.classList.add("cursor-pointer")
-          enchant_minus_node.addEventListener("click", e => {
-              let node = e.target.parentNode.firstElementChild
-              node.innerHTML = Math.max(1, parseInt(node.innerHTML) - 1)
-          })
-
-          if(node.parentNode.parentNode.lastElementChild===node.parentNode) {
-              let item_value = enchant_input.getAttribute("list")
-              node.parentNode.parentNode.appendChild(addEnchantmentListItem(item_value))
+          if(list_item_parent.parentNode.lastElementChild===list_item_parent) {
+              let item_value = node.getAttribute("list")
+              list_item_parent.parentNode.appendChild(addEnchantmentListItem(item_value))
           }
       })
-      inner.appendChild(enchant_lv)
-      inner.appendChild(enchant_minus)
-      inner.appendChild(enchant_max)
-      inner.appendChild(enchant_input)
+
+      wrapper.appendChild(enchant_hint)
+      wrapper.appendChild(enchant_lv)
+      wrapper_i.appendChild(enchant_input_hint)
+      wrapper_i.appendChild(enchant_input)
+
+      inner.appendChild(wrapper)
+      inner.appendChild(wrapper_i)
       return inner
 }
 
@@ -191,35 +262,97 @@ function addEnchantmentList(item_value) {
 document.getElementById("input").appendChild(addInputItem())
 updateDropDown()
 
-function validate_goal_level_node(node) {
-    let lv = parseInt(node.innerText);
+
+
+
+function validate_goal_enchant_node(node) {
+    let lv = parseInt(node.getAttribute("level"));
+    node.selectedIndex = Array.from(node.options).map(ele => parseInt(ele.value)).indexOf(lv)
     let gp = parseInt(node.getAttribute("group"))
-    let eid = parser[node.parentNode.parentNode.getAttribute("value")]
-    if(typeof lv === "number" && lv > 0) {
-        lv = Math.min(lv, max_lv[Number(eid).toString()])
-        node.parentNode.parentNode.setAttribute("lv", lv);
-        node.parentNode.parentNode.classList.add("highlight")
-        node.innerHTML = lv
-        if(gp > 0) {
-            Array.from(document.getElementById("output-enchantments").childNodes)
-                .filter(node2 => node2.tagName.toUpperCase() === "DIV")
-                .map(node2 => node2.lastElementChild.firstElementChild)
-                .filter(node2 => parseInt(node2.getAttribute("group")) === gp && node2!==node)
-                .forEach(ele => {
-                    ele.innerHTML = 0
-                    ele.parentNode.parentNode.classList.remove("highlight")
+    let eid = node.getAttribute("eid")
+    let enchant_line = node.parentNode.parentNode
+    enchant_line.setAttribute("lv", lv)
+    if(lv > 0) {
+        enchant_line.classList.add("highlight")
+        //activate mutual exclusive if gp > 0 (has a group)
+        //except for protection tier when god armor state is on
+        if(gp > 0 && (!isInProtectionTier(eid) || !isGodArmorState())) {
+            Array.from(document.getElementById("output-enchantments").children)
+                .filter(enchant => enchant.tagName.toUpperCase() === "DIV")
+                .map(enchant => enchant.lastElementChild.children[1]) //the level node
+                .filter(lvnode => parseInt(lvnode.getAttribute("group")) === gp && lvnode!==node)
+                .forEach(lvnode => {
+                    lvnode.setAttribute("level", 0)
+                    lvnode.parentNode.parentNode.classList.remove("highlight")
+                    validate_goal_enchant_node(lvnode)
+
                 })
         }
     } else {
-        lv = Math.max(0, lv)
-        node.innerHTML = 0
-        node.parentNode.parentNode.classList.remove("highlight")
+        enchant_line.classList.remove("highlight")
     }
 }
 
 
-function validate_goal_level(e) {
-    validate_goal_level_node(e.target)
+function addOutputEnchantment(n_group, eid) {
+    let this_max_lv = max_lv[eid]
+
+    let enchant_line = document.createElement("div")
+    enchant_line.classList.add("enchantment")
+    enchant_line.setAttribute("value", eid)
+    enchant_line.setAttribute("lv", 0)
+    enchant_line.innerText = displayfun(parser[eid])
+
+    let lv_wrap = document.createElement("div")
+    lv_wrap.classList.add("row-flex")
+
+
+    let lv_hint = document.createElement("div")
+    lv_hint.classList.add("select-box-hint")
+    lv_hint.innerText = "Lv"
+
+    let lv_select = document.createElement("select")
+    lv_select.classList.add("select-box-content")
+    lv_select.setAttribute("title", "click to select level")
+    lv_select.innerHTML = number_dropdown_zero_content(this_max_lv)
+    lv_select.setAttribute("group", n_group)
+    lv_select.setAttribute("max_lv", this_max_lv)
+    lv_select.setAttribute("level", 0)
+    lv_select.setAttribute("eid", eid)
+    lv_select.addEventListener("change", e=> {
+        let node = e.target
+        let value = node.options[node.selectedIndex].value
+        node.setAttribute("level", value)
+        validate_goal_enchant_node(node)
+    })
+
+    let lv_max = document.createElement("div")
+    lv_max.classList.add("select-box-hint")
+    lv_max.classList.add("cursor-pointer")
+    lv_max.setAttribute("title", "click to max, double click to reset")
+    lv_max.innerText = "max"
+    lv_max.addEventListener("click", e=> {
+        let node = e.target
+        let sibilings = node.parentNode.children
+        let lv_node = sibilings[sibilings.length-2]
+        lv_node.setAttribute("level", lv_node.getAttribute("max_lv"))
+        validate_goal_enchant_node(lv_node)
+    })
+    lv_max.addEventListener("dblclick", e=> {
+        let node = e.target
+        let sibilings = node.parentNode.children
+        let lv_node = sibilings[sibilings.length-2]
+        lv_node.setAttribute("level", 0)
+        validate_goal_enchant_node(lv_node)
+    })
+
+
+    lv_wrap.appendChild(lv_hint)
+    lv_wrap.appendChild(lv_select)
+    lv_wrap.appendChild(lv_max)
+    enchant_line.appendChild(lv_wrap)
+
+    return enchant_line
 }
 
 document.getElementById("selectoutput").addEventListener("change", e => {
@@ -250,29 +383,19 @@ document.getElementById("selectoutput").addEventListener("change", e => {
         res_enchant_lst = res_enchant_lst.reduce((acc, cur) => acc.concat([null]).concat(cur),[])
     }
 
-    document.getElementById("output-enchantments").innerHTML =
-    res_enchant_lst.reduce((acc, cur) => {
-        if(cur === null) {
+    let parent = document.getElementById("output-enchantments")
+    parent.innerHTML = ""
+    res_enchant_lst.forEach(eid => {
+        if(eid === null) {
             n_group -= 1
-            return acc + "<hr>"
+            parent.appendChild(document.createElement("hr"))
+        } else {
+            parent.appendChild(addOutputEnchantment(n_group, eid))
         }
-        return acc + "<div class='enchantment' value='"+parser[cur]+"'>"+displayfun(parser[cur])
-                +"<div class='lv_wrap'><div group="+n_group+" onfocusout='validate_goal_level(event)' class='lv show-outline' title='click to change level' contenteditable='true'>0</div>"
-                + " <div title='set to max level' ondblclick='setZeroLv(this)' onclick='setMaxLv(this)' max_lv='"+max_lv[cur]+"'>(max. "+max_lv[cur]+")</div>"+"</div></div>"
-    }, "")
+    })
+
 })
 
-function setMaxLv(node) {
-    let target = node.parentNode.firstElementChild
-    target.innerHTML = node.getAttribute("max_lv")
-    validate_goal_level_node(target)
-}
-
-function setZeroLv(node) {
-    let target = node.parentNode.firstElementChild
-    target.innerHTML = 0
-    validate_goal_level_node(target)
-}
 
 
 Array.from(document.querySelectorAll(".div-col")).forEach(ele => {
@@ -290,15 +413,20 @@ Array.from(document.querySelectorAll(".div-col")).forEach(ele => {
     })
 })
 
+
+/*
+pack: {"inputs":[{eid:lv, "item":itemname, "prior":#}], "output":{eid:lv, "item":itemname}}
+
+*/
 function readPage() {
     let inputs = Array.from(document.getElementById("input").children)
     let outputvalue = document.getElementById("selectoutput").getAttribute("value")
     let res_pack = {"inputs":[], "output":{}}
 
-    if(inputs.length > 1) {
+    if(inputs.length > 1 && document.querySelector(".left").style.display === "block") {
         let tmplst = []
         inputs.filter(ele => ele.tagName.toUpperCase() === "DIV")
-          .map(ele => ele.lastElementChild)
+          .map(ele => ele.lastElementChild) //enchantment-list class
           .filter(ele => ele.getAttribute("value") !== undefined &&
                           ele.getAttribute("value") !== null &&
                           ele.getAttribute("value").trim() !== "")
@@ -306,19 +434,21 @@ function readPage() {
               let tmpdct = {}
               Array.from(ele.children).forEach((list_item, idx, arr) => {
                   if(idx < arr.length-1) {
-                      let eid = parser[list_item.lastElementChild.getAttribute("value")]
+                      let input_node = list_item.lastElementChild.lastElementChild
+                      let eid = input_node.getAttribute("value")
                       if(eid===undefined || eid ===null)
                           eid = -1
-                      tmpdct[eid] = parseInt(list_item.firstElementChild.innerText)
+                      let lv_node = list_item.firstElementChild.lastElementChild
+                      tmpdct[eid] = parseInt(lv_node.options[lv_node.selectedIndex].value)
                   }
               })
               if(ele.getAttribute("value")!=="enchanted_book") {
                   tmpdct["item"] = ele.getAttribute("value")
               }
               let allchild = ele.parentNode.children
-              // prior work
+              //row item name,  prior work  , enchantment list
               let priornode = allchild[allchild.length-2].lastElementChild
-              let priorwork = parseInt(priornode.getAttribute("value"))
+              let priorwork = parseInt(priornode.options[priornode.selectedIndex].value)
               if(priorwork>0) {
                   tmpdct["prior"] = priorwork
               }
@@ -331,15 +461,98 @@ function readPage() {
     if(outputvalue!==null && outputvalue.trim() !=="") {
         let tmp = {}
         Array.from(document.getElementsByClassName("enchantment"))
-          .filter(ele => ele.lastElementChild.firstElementChild.innerText !== "0")
+          .filter(ele => parseInt(ele.getAttribute("lv")) !== 0)
           .forEach(ele => {
-              tmp[parser[ele.getAttribute("value")]] = parseInt(ele.lastElementChild.firstElementChild.innerText)
+              tmp[ele.getAttribute("value")] = parseInt(ele.getAttribute("lv"))
           })
         tmp["item"] = outputvalue
         res_pack["output"] = tmp
     }
     return res_pack
 }
+
+
+
+/*
+pack: {"inputs":[{eid:lv, "item":itemname, "prior":#}], "output":{eid:lv, "item":itemname}}
+
+*/
+
+function reverseLoadPage(packed) {
+    console.log("Load from Image")
+    console.log(packed);
+    let inputs_lst = packed["inputs"]
+    let outputdct = packed["output"]
+    switchMode((inputs_lst.length===0?1:2))
+
+    let input = document.getElementById("input")
+    input.innerHTML = ""
+    input.appendChild(addInputItem())
+
+    let selectoutput = document.getElementById("selectoutput")
+    selectoutput.selectedIndex = 0
+    selectoutput.dispatchEvent(new Event("change"))
+
+    if(Object.keys(outputdct).indexOf("item")!==-1) {
+        selectoutput.value = outputdct["item"]
+        selectoutput.dispatchEvent(new Event("change"));
+        let protectiontiers = Object.keys(outputdct).filter(eid => isInProtectionTier(eid))
+        if(protectiontiers.length > 1) {
+            loadGodArmor(true)
+        }
+
+        let enchantlist = Array.from(document.getElementById("output-enchantments").children).filter(ele => ele.classList.contains("enchantment"))
+        Object.keys(outputdct).filter(ele => ele!=="item").forEach(eid => {
+            enchantlist.filter(ele => ele.getAttribute("value") === eid).forEach(parentNode => {
+                let lvnode = parentNode.querySelector("select")
+                lvnode.setAttribute("level", outputdct[eid])
+                validate_goal_enchant_node(lvnode)
+            })
+        })
+    }
+
+    if(inputs_lst.length > 0) {
+        //reset input area
+        let inputdiv = document.getElementById("input")
+        inputdiv.innerHTML = ""
+        inputdiv.appendChild(addInputItem())
+
+        let lastInputNode = () => inputdiv.lastElementChild
+        let currentSelect = () => lastInputNode().querySelector(".itemselect")
+        inputs_lst.forEach(inputdct => {
+            let currentNode = lastInputNode()
+            if(Object.keys(inputdct).indexOf("item")!==-1) {
+                currentSelect().value = inputdct["item"]
+            } else {
+                currentSelect().value = "enchanted_book"
+            }
+            //lastInputNode() will change after this event, use currentNode
+            currentSelect().dispatchEvent(new Event("change"))
+
+            //second last child node (prior work)
+            if(Object.keys(inputdct).indexOf("prior")!==-1) {
+                let priorwork = currentNode.querySelector(".priorwork select")
+                //let priorwork = currentNode.children[currentNode.children.length-2].lastElementChild
+                priorwork.selectedIndex = Array.from(priorwork.options).map(ele => parseInt(ele.value)).indexOf(inputdct["prior"])
+            }
+
+            let currentLastEnchant = () => currentNode.lastElementChild.lastElementChild
+            Object.keys(inputdct).filter(ele => ele!=="item" && ele!=="prior").forEach(eid => {
+                let currentenchantitem = currentLastEnchant()
+                let enchinput = currentenchantitem.querySelector(".enchantment-list-input")
+                enchinput.selectedIndex = Array.from(enchinput.options).map(ele => ele.value).indexOf(eid)
+                //currentLastEnchant() will change after this event, use currentenchantitem
+                enchinput.dispatchEvent(new Event("change"))
+
+                let currentlv = currentenchantitem.querySelector(".enchantment-list-lv")
+                currentlv.selectedIndex = Array.from(currentlv.options).map(ele => parseInt(ele.value)).indexOf(inputdct[eid])
+                currentlv.dispatchEvent(new Event("change"))
+            })
+        })
+    }
+
+}
+
 
 /*
 possible errors:
@@ -398,13 +611,12 @@ function validate_input(res_pack) {
             }
         }
     }
-    if(indctlst.length > 8) {
+    if(indctlst.length > 10 || Object.keys(outdct).length > 10) {
         return -706;
     }
     let priorcnt = indctlst.map(ele => (ele["prior"] | 0)).filter(ele => ele!==0).length
     if(priorcnt>0 && indctlst.length >6)
         return -707;
-
     return 0
 }
 
@@ -454,6 +666,7 @@ Error code:
 function prune() {
     progress_indicate("parsing")
     let data_pack = readPage()
+    storeInputLocal(data_pack)
     let code = validate_input(data_pack)
     if(code===0) {
         progress_indicate("searching")
@@ -513,7 +726,7 @@ function prune() {
             let priorcnt = indctlst.map(ele => (ele["prior"] | 0)).filter(ele => ele!==0)
             arrdict["prior"] = priorcnt.length
 
-            res = search(lst, arrdict)
+            res = search(lst, arrdict, isGodArmorState())
         }
         console.log(res);
         if(res["anvil_cost"] >= 10000 || res["enchant_cost"] >= 10000) {
@@ -521,6 +734,7 @@ function prune() {
             return
         }
         let tree = new Tree(res["strc"])
+        tree.set_god_armor(isGodArmorState())
         tree.tree_sum(res["wrt"])
         console.log((tree.root));
         displayTree(tree.root)
@@ -538,16 +752,16 @@ function prune() {
             case -703: error_message = "cannot combine (your item not match)";break;
             case -704: error_message = "unknown enchantment in your item";break;
             case -705: error_message = "conflicted enchantments in your item";break;
-            case -706: error_message = "you have included over 8 items";break;
+            case -706: error_message = "you have included over 10 items";break;
             case -707: error_message = "you have included over 6 items";break;
         }
         progress_indicate(error_message)
     }
 }
 
-romanparser = (i) => (i<=3?"I".repeat(i): (i==4?"I":"") + "V")
 
 function loadNodeValue(value_item, cost, cost2) {
+    romanparser = (i) => (i<=3?"I".repeat(i): (i==4?"I":"") + "V")
     let res_str = "<div class='tree-item'>"
     if(cost!==undefined && cost2!==undefined) {
         res_str += "Cost: " + (parseInt(cost) + parseInt(cost2))
@@ -562,7 +776,77 @@ function loadNodeValue(value_item, cost, cost2) {
     return res_str
 }
 
+function drawCanvas() {
+    let canvas = document.getElementById("result-tree-canvas").getContext('2d');
+    document.getElementById("result-tree-canvas").height = document.getElementById("result-tree").clientHeight +25
+    canvas.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.font = "18px Monospace"
+    let anvil_pairs = Array.from(document.querySelectorAll(".anvil-pair"))
+    let total_line = 0
+    let pair_max_line = 0
+    const line_height = 20
 
+    let total_cost = document.getElementById("error-message").innerText
+    canvas.fillText(total_cost, 2 * 300 + 20, 20);
+    total_line += 2
+    anvil_pairs.forEach((pair, ridx) => {
+        canvas.beginPath()
+        canvas.moveTo(0, total_line * line_height)
+        canvas.lineTo(900, total_line * line_height)
+        canvas.closePath()
+        canvas.stroke()
+
+        let treeitems = Array.from(pair.children).filter(ele => ele.classList.contains("tree-item"))
+
+        treeitems.forEach((itemnode, cidx) => {
+            let node_text = itemnode.innerHTML
+            let node_texts = node_text.split("<br>")
+            let this_node_max_line = 0
+            node_texts.forEach((node_inner_text, line) => {
+                if(node_inner_text.indexOf("span")!==-1) {
+                    node_inner_text = node_inner_text.replaceAll("<span>","").replaceAll("</span>","")
+                    node_inner_text = " > " + node_inner_text + " < "
+                }
+                this_node_max_line += 1
+                canvas.fillText(node_inner_text, cidx * 300 + 20, total_line * line_height + line*line_height + 25);
+            })
+            pair_max_line = Math.max(pair_max_line, this_node_max_line)
+        })
+
+        total_line += pair_max_line
+        total_line += 1
+
+    });
+
+    canvas.beginPath()
+    canvas.moveTo(600, 0 )
+    canvas.lineTo(600, total_line * line_height)
+    canvas.closePath()
+    canvas.stroke()
+
+    return document.getElementById("result-tree-canvas")
+}
+
+// canvas: canvas node
+// data: json string
+//return a thenable (blob object)
+function packDataToImage(canvas, data) {
+    //canvas.getImageData(0,0, canvas.width, canvas.height)
+    let url = canvas.toDataURL();
+    let data_bytes = new TextEncoder().encode(data)
+
+    return fetch(url).then(res => {
+        return res.arrayBuffer().then(bytes => {
+            var test = bytes
+            let n_len = bytes.byteLength
+            let buffer = new ArrayBuffer(n_len + data_bytes.length)
+            let res_bytes = new Uint8Array(buffer, 0, buffer.byteLength)
+            res_bytes.set(new Uint8Array(bytes), 0)
+            res_bytes.set(data_bytes, n_len)
+            return res_bytes;
+        })
+    })
+}
 
 
 function loadTree(node) {
@@ -580,7 +864,110 @@ function loadTree(node) {
     return loadNodeValue(node.value)
 }
 
+function storeInputLocal(packed) {
+    localStorage.setItem("enchant_pack", JSON.stringify(packed))
+}
+
+function addSaveButton() {
+    let button = document.createElement("div")
+    button.classList.add("button")
+    button.classList.add("select-box-hint")
+    button.classList.add("cursor-pointer")
+    button.setAttribute("title", "save result as image and drag here to import")
+    button.innerHTML = "Save Result"
+    //when clicked, draw and save the result as png
+    button.addEventListener("click", e => {
+        let packed = localStorage.getItem("enchant_pack") || null
+        if(packed!==null) {
+            //get the canvase node after drawing
+            let canvas = drawCanvas()
+            let thenable = packDataToImage(canvas, packed)
+
+            //174 66 96 130
+            //AE 42 60 82
+            //download packed
+            thenable.then(bytes => {
+                let blob = new Blob([bytes], {type:"image/png"})
+                let url = URL.createObjectURL(blob)
+                let atag = document.createElement("a")
+                atag.href = url
+                atag.style.display = "none"
+                document.body.appendChild(atag)
+                atag.setAttribute("download", "enchantments_order.png")
+                atag.click()
+                atag.remove()
+            })
+        }
+    })
+    return button
+}
+
+
 function displayTree(root) {
     document.getElementById("result-tree").innerHTML = ""
+    document.getElementById("result-tree-button").innerHTML = ""
     loadTree(root)
+    document.getElementById("result-tree-button").appendChild(addSaveButton())
 }
+
+//search from end to first
+//return the index of first byte after EOF
+function searchEOF(ab){
+    let n = ab.byteLength-1
+    // n-3 n-2 n-1 n-0
+    //searching for 174 66 96 130
+    int8view = new Uint8Array(ab)
+    while(3<=n) {
+        if(int8view[n-3]==174 && int8view[n-2]==66 && int8view[n-1]==96 && int8view[n]==130)
+            return n+1
+        n -= 1
+    }
+    return -1
+}
+
+
+
+function validateDroppedPng(file, callback) {
+    let reader = new FileReader()
+    reader.onload = () => {
+        let url = reader.result
+        fetch(url).then(res => {
+            return res.arrayBuffer()
+        }).then(bytes => {
+            let start_data_idx = searchEOF(bytes)
+            if(start_data_idx!==-1) {
+                let data_bytes = bytes.slice(start_data_idx)
+                if(data_bytes.byteLength > 0) {;
+                    let data = new TextDecoder().decode(data_bytes)
+                    let json = JSON.parse(data)
+                    if(validate_input(json)===0) {
+                        callback(json)
+                        prune()
+                    } else {
+                        console.log("Invalid data")
+                    }
+                } else {
+                    console.log("No data inside image")
+                }
+            }
+        })
+    }
+    reader.readAsDataURL(file)
+}
+
+
+
+var body = document.body
+body.addEventListener("dragover", e=> {
+
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move"
+})
+body.addEventListener("drop", e=> {
+    e.preventDefault();
+    let files = e.dataTransfer.files
+    if(files.length!==1) {
+        return ;
+    }
+    validateDroppedPng(files[0], reverseLoadPage)
+})

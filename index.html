@@ -17,62 +17,76 @@
     <meta property="twitter:title" content="Minecraft Enchantment Order Calculator">
     <meta property="twitter:description" content="Minecraft optimal enchantment order calculator in anvil. Search the best enchanting order within a second. ">
       <link rel="stylesheet" href="style.css">
+      <script type="text/javascript" src="magicstring.js"></script>
       <script type="text/javascript" src="search.js"></script>
   </head>
   <body class="pad pad-top">
-    <div class="div-title">
-        Calculate the most optimal enchantment order in Minecraft (in anvil). There are 2 use cases fulfilled by this tool:<br>
-        (1) If you want to combine books with 1 enchant to an item, click the item in "You Want" and select the enchantments there.<br>
-        (2) If you want to combine multiple items/books, add them in "You Have" and select the enchantment on each item/book there.<br>
-        In (2), if you want your final outcome to have specific enchant level, select them in "You Want".<br><br>
+    <div class="div-header banner cursor-pointer" onclick="this.nextElementSibling.classList.toggle('hide');localStorage.setItem('hideguide',document.querySelector('.div-guide').classList.contains('hide'))" title="show guide">
+        Minecraft Enchantment Order Calculator
+        <div class="right-align" title="open a new tab">
+            Reference Page: <a href="https://minecraft.fandom.com/wiki/Anvil_mechanics" target="_blank">Minecraft Fandom Wiki</a>
+        </div>
+        <div class="right-align" title="open a new tab">
+            Github: <a href="https://github.com/kkchengaf/Minecraft-Enchantment-Order-Calculator/" target="_blank">Github</a>
+        </div>
+    </div>
+    <div class="div-guide div-header cursor-pointer" title="hide guide">
+        <div class="div-title">
+            Calculate the most optimal enchantment order in Minecraft. There are 2 Modes available:<br>
+            (1) Combining multiple books (with 1 enchantment) to an item: click the item in "You Want" and select the enchantments.<br>
+            (2) Combine multiple enchanted items and books together: add items one by one in "You Have" and select the enchant each.<br>
+            In (2), you can specify the final outcome with enchantments, select them in "You Want".<br><br>
 
-        To select an enchantment, click on and change the number next to enchant name. You can also click on "max" to set the level.<br>
-        In (2), you have to first add the enchant on your item one by one in "enchant with" for all item you have.<br>
-        To remove an item/enchant, select the blank/delete the enchantment, or set the level to 0. Once everything is set, click search. <br>
+            To remove an item/enchant, select the blank option, or set the level to 0. <br>
+            Once everything is set, click search. (select at least 3 items/enchantments to search) <br>
+            You can save the search result as image, and reload it by dragging the image into this page.<br>
+        </div>
     </div>
-    <div class="right-align">
-        Reference Page: <a href="https://minecraft.fandom.com/wiki/Anvil_mechanics" target="_blank">Minecraft Fandom Wiki</a>
+
+
+    <div class="mode-button-group row-flex">
+        <div class="mode-button row-flex cursor-pointer" onclick="switchMode(1)" title="click to switch mode">
+            <div class="select-box-hint mode-button-hint">Mode 1</div>
+            <div class="select-box-content mode-button-des">Single Enchanted Books Search</div>
+        </div>
+        <div class="mode-button row-flex cursor-pointer" onclick="switchMode(2)" title="click to switch mode">
+            <div class="select-box-hint mode-button-hint">Mode 2</div>
+            <div class="select-box-content mode-button-des">Advance Combination Search</div>
+        </div>
+        <div class="option-button god-armor-option-button row-flex cursor-pointer" onclick="toggleGodArmor()" title="remove protection mutual exclusive in MC 1.14">
+            <div class="select-box-hint mode-button-hint">God Armor</div>
+        </div>
     </div>
-    <div class="right-align">
-        Github: <a href="https://github.com/kkchengaf/Minecraft-Enchantment-Order-Calculator/" target="_blank">Github</a>
-    </div>
+
     <div class="div-col-con pad-medium">
-        <div class="div-col-cell">
-            <div class="div-col hide">
-            Capable to search in :
-            <div class="">(1) item + books with 1 enchantment</div>
-            <div class="">(2) enchanted items/books + enchanted items/books</div>
-            <div class="">(2) item + books with multiple enchantment</div>
-            </div>
-
-            <div class="" id="input">
-
-            </div>
-
+        <div class="div-col-cell left">
+            <div class="" id="input"></div>
         </div>
 
-        <div class="div-col-cell">
-            <div class="div-col hide">
-              Out of Scope:
-              <div class="">renaming/repair</div>
-              <div class="">combining more than 8 items (6 with prior work)</div>
-            </div>
-
+        <div class="div-col-cell right">
             <div class="" id="output"><hr>
-                You Want: <select name="item" id="selectoutput"></select>
+                <div class="row-flex">
+                    <div class="select-box-hint">You Want</div>
+                    <select class="select-box-content" name="item" id="selectoutput"></select>
+                </div>
                 <div class="" id="output-enchantments">
                 </div>
-                <div class="button" id="search-button" onclick="prune()">Search</div>
+                <div class="select-box-hint button cursor-pointer" id="search-button" onclick="prune()">Search</div>
                 <div class="" id="error-message"></div>
             </div>
         </div>
     </div>
 
     <div class="" id="result-tree">
-
-
     </div>
 
+    <div class="" id="result-tree-button">
+    </div>
+
+    <div class="">
+        <canvas class="" id="result-tree-canvas" width="900" height="0" style="display:none">
+        </canvas>
+    </div>
     <div class="" id="datalist-area">
     </div>
 

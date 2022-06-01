@@ -20,25 +20,72 @@
     .pad-top {
       padding-top: 32px;
     }
+    .div-header {
+
+    }
+
+    .div-header.hide {
+        display: none;
+    }
+
+    .banner {
+        background: var(--color-theme2);
+        color: white;
+        font-size: 36px;
+        padding: 26px 21px 0px 32px;
+        padding-left: 60px;
+        margin: -40px -74px 16px -74px;
+    }
+
+    .row-flex {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+
+    }
+
     .right-align {
+      font-size: 12px;
       text-align: right;
     }
     .div-title {
-      padding: 16px;
-      padding-top: 0px;
+      padding: 0 16px;
       font-size: 1.2vw;
       max-width: 97%;
-      margin-top: -8px;
-      max-height: 25%;
+      margin-bottom: 8px;
     }
+    .mode-button-group {
+      justify-content: flex-start;
+    }
+
+    .mode-button {
+
+    }
+    .mode-button-hint {
+
+    }
+    .mode-button-des {
+        height: 30px!important;
+        padding: 0 15px;
+        line-height: 30px;
+    }
+
+    .mode-button.off, .option-button.off {
+        opacity: 0.4;
+    }
+
     .div-col-con {
       display: flex;
       justify-content: space-around;
       align-content: space-around;
     }
+
     .div-col-cell {
       width: 45%;
+      max-width: 550px;
     }
+
 
     .div-col {
       font-size: 16px;
@@ -57,17 +104,6 @@
       padding-top: 20px;
     }
 
-    .hide {
-      max-height: 30px;
-      overflow: hidden;
-      transition: 1s;
-    }
-
-    .hide div {
-      opacity: 0;
-      transition: opacity 1s;
-    }
-
     #input,#output {
       font-size:18px;
     }
@@ -76,28 +112,35 @@
       margin-bottom: 12px;
       height: 32px;
       font-size:18px;
-      width: 60%;
+    }
+
+    .row-item-name {
+        justify-content: flex-start;
+        padding: 5px;
+    }
+
+    .itemselect {
+        width: 60%;
     }
 
     .priorwork {
-        margin-left: 18px;
-        font-size: 14px;
-    }
-
-    .priorwork select {
-        width: 20%;
-        text-align: center;
-        font-size: 14px;
-        height: 28px;
+        padding: 5px;
+        justify-content: flex-start;
     }
 
     #output, .input-enchant-item {
-        margin-top: 18px;
+        margin-top: 30px;
     }
 
     .input-enchant-item {
         background: var(--color-theme1);
         padding-left: 8px;
+        padding-bottom: 13px;
+    }
+
+    .input-enchant-item hr{
+      width: calc(100% + 6px);
+      margin-left: -8px;
     }
 
     option {
@@ -109,53 +152,53 @@
       padding: 3px;
       display: flex;
       justify-content: space-between;
+      line-height: 34px;
     }
 
     .enchantment:hover {
-      background-color: var(--color-theme2);
+      background-color: var(--color-theme1);
     }
 
     .enchantment-list-item{
         display: flex;
-        justify-content: space-evenly;
+        justify-content: flex-start;
         padding: 5px;
         height: 34px;
         position: relative;
     }
 
-    .enchantment .lv,.enchantment-list-lv,.enchantment-list-max-lv, .enchantment-list-minus-lv {
+    .enchantment .lv,.enchantment-list-lv {
         outline: none;
     }
 
-    .enchantment-list-lv {
-        padding-left: 30px;
-        margin-right: 15px;
-        height: 25px;
-        overflow: hidden;
+
+    .select-box-hint {
+        height: 34px;
         min-width: 10px;
+        background: var(--color-theme2);
+        color: white;
+        padding: 0 6px 0 6px;
+        line-height: 34px;
+        font-size: 18px;
     }
 
-    .enchantment-list-max-lv {
-        width: 63px;
-        font-size: 14px;
-        margin-top: 1px;
-        line-height: 18px;
-        height: 20px;
-        border-radius: 6px;
-        padding: 2px;
-    }
-
-    .enchantment-list-minus-lv {
-        width: 30px;
-        height: 16px;
-        padding: 4px;
-        user-select: none;
+    .select-box-content {
+        margin-right: 8px;
+        height: 34px;
+        overflow: hidden;
+        min-width: 60px;
+        margin-bottom: 0;
+        border: 2px solid var(--color-theme2);
         text-align: center;
-        border-radius: 6px;
-        line-height: 10px;
-        margin-top: 2px;
-        position: absolute;
-        left: -18px;
+        outline: none;
+        font-size: 18px;
+    }
+
+    .enchantment-list-lv-hint {
+
+    }
+
+    .enchantment-list-lv {
     }
 
     .enchantment.highlight {
@@ -163,9 +206,9 @@
     }
 
     .lv_wrap {
-      display: flex;
-      background: var(--color-theme1);
-      padding: 0 3px 0 13px;
+        display: flex;
+        padding: 0 3px 0 13px;
+        border-radius: 7px;
     }
     .lv_wrap .lv {
       margin-right: 24px;
@@ -178,15 +221,13 @@
     }
 
 
-    input {
-        outline: none;
-        border: none;
-        height: 35px;
-        font-size: 18px;
-        text-align: center;
-        font-family: monospace;
-        width: 50%;
-        border-bottom: 1px solid gray;
+
+    .enchantment-list-input {
+        width: 60%;
+    }
+
+    .enchantment-list-input-wrapper {
+        width: 80%;
     }
 
 
@@ -217,30 +258,31 @@
         content: "lv";
         position: absolute;
         bottom: 0px;
-        left: -30px;
+        left: -28px;
         height: 25px;
-        background: var(--color-theme1);
-        padding-left: 4px;
+        padding-left: 6px;
+        border-radius: 6px;
     }
 
     .show-outline {
         position: relative;
     }
 
-    #search-button {
-        cursor: pointer;
+    .button {
         margin: auto;
         margin-top: 20px;
-        width: 80%;
+        width: 100px;
         text-align: center;
-        height: 60px;
-        line-height: 60px;
-        background: lightgray;
-        border-radius: 6px;
-        user-select: none;
+        height: 40px;
+        line-height: 40px;
+        font-size: 21px;
     }
 
-    #search-button:hover {
+    .result-tree-button .button {
+        width: 150px;
+    }
+
+    .button:hover {
         box-shadow: darkgrey 0 0 3px;
     }
 
@@ -279,5 +321,5 @@
 
     :root {
         --color-theme1: #e1e1e1;
-        --color-theme2: #e1e1e1;
+        --color-theme2: #94a5d3;
     }
