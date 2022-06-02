@@ -6,6 +6,7 @@ enchantbytool = advn["enchantbytool"]
 toolsname = Object.keys(enchantbytool).sort()
 displayfun = (str) => str.replaceAll("_", " ")
 comparer = (a,b) => parser[a].localeCompare(parser[b])
+message_dismiss_handler = null
 sorted = (lst, key) => {lst.sort(key); return lst;}
 selectable_tools = () => {
     let outvalue = document.getElementById("selectoutput").getAttribute("value")
@@ -87,6 +88,8 @@ function switchMode(switchTo) {
         }
     })
     document.querySelector(".left").style.display = (switchTo===1?"none":"block")
+    document.querySelector(".output-item-label").innerText = (switchTo===1?"Final Outcome":"Output Condition")
+    document.querySelector(".output-item-label").setAttribute("title", (switchTo===1?"the item you want to combine enchanted books to":"restrict the output with specific enchantments (optional)"))
     localStorage.setItem("searchmode", switchTo)
 }
 
@@ -120,12 +123,54 @@ function loadPreviousMode() {
 }
 loadPreviousMode()
 loadGodArmor()
+attachMoreVerbose()
 
+function attachMoreVerbose(node) {
+    if(node===undefined || node === null) {
+        node = document.querySelectorAll("[title]")
+    } else {
+        node = node.querySelectorAll("[title]")
+    }
+    Array.from(node).forEach(ele => {
+        console.log(ele.getAttribute("title"));
+        //hover event is never registered in whole project
+        ele.addEventListener("mouseover", e => {
+            clearTimeout(message_dismiss_handler)
+            progress_indicate_quick(e.target.getAttribute("title"))
+        })
+        ele.addEventListener("mouseleave", e => {
+            clearTimeout(message_dismiss_handler)
+            message_dismiss_handler = setTimeout(() => {
+                progress_indicate_quick("")
+            }, 3000)
+        })
+    })
+}
+
+
+function recycleInputCounter() {
+      document.querySelectorAll(".input-item-counter").forEach((node, idx) => {
+          node.innerText = "Input Item " + (idx + 1)
+      })
+}
+
+function recycleEnchantCounter(enchlistnode) {
+      enchlistnode.querySelectorAll(".enchantment-list-input-wrapper .select-box-hint")
+      .forEach((node, idx) => {
+          node.innerText = "Enchant " + (idx + 1)
+      })
+}
 
 function addInputItem() {
       let outer = document.createElement("div")
       outer.classList.add("input-enchant-item")
       outer.innerHTML = "<hr>"
+
+      let itemcnt = document.createElement("div")
+      itemcnt.classList.add("select-box-hint")
+      itemcnt.classList.add("input-item-counter")
+      itemcnt.innerText = "Input Item 1"
+      itemcnt.setAttribute("title", "the item to be combined in anvil")
 
       let inner = document.createElement("div")
       inner.classList.add("row-flex")
@@ -133,7 +178,7 @@ function addInputItem() {
 
       let dropdownhint = document.createElement("div")
       dropdownhint.classList.add("select-box-hint")
-      dropdownhint.innerHTML = "You Have"
+      dropdownhint.innerHTML = "Item Name"
 
       let dropdown = document.createElement("select")
       dropdown.innerHTML = [" "].concat(selectable_tools()).reduce((acc, cur) => acc + "<option value=" +cur+">"+cur.replaceAll("_", " ")+"</option>", "")
@@ -150,6 +195,7 @@ function addInputItem() {
           updateDropDown(node)
           if(value.trim()==="") {
               document.getElementById("input").removeChild(itemnode)
+              recycleInputCounter()
               return;
           }
           if(itemnode.lastElementChild===node.parentNode) {
@@ -160,11 +206,14 @@ function addInputItem() {
           }
           itemnode.appendChild(addPriorWorkPenalty())
           itemnode.appendChild(addEnchantmentList(value))
+          recycleInputCounter()
       })
 
       inner.appendChild(dropdownhint)
       inner.appendChild(dropdown)
+      outer.appendChild(itemcnt)
       outer.appendChild(inner)
+      attachMoreVerbose(outer)
       return outer
 }
 
@@ -174,18 +223,20 @@ function addPriorWorkPenalty() {
       let outer = document.createElement("div")
       outer.classList.add("priorwork")
       outer.classList.add("row-flex")
-      outer.title = "ignore this if this item was not combined from anvil"
 
       let dropdownhint = document.createElement("div")
       dropdownhint.classList.add("select-box-hint")
       dropdownhint.innerText = "Prior Work Penalty"
+      dropdownhint.title = "ignore the penalty if the item is new to anvil"
 
       let dropdown = document.createElement("select")
       dropdown.innerHTML = anvil_cost_idxer.reduce((acc, cur) => acc + "<option value=" +cur+">"+cur+"</option>", "")
       dropdown.classList.add("select-box-content")
+      dropdown.title = "prior work penalty = cost to rename - 1"
 
       outer.appendChild(dropdownhint)
       outer.appendChild(dropdown)
+      attachMoreVerbose(outer)
       return outer
 }
 
@@ -206,7 +257,7 @@ function addEnchantmentListItem(item_value) {
       enchant_lv.contenteditable = 'false'
       enchant_lv.classList.add("enchantment-list-lv")
       enchant_lv.classList.add("select-box-content")
-      enchant_lv.setAttribute("title", "click to change level")
+      enchant_lv.setAttribute("title", "click to change enchant level")
 
 
       let wrapper_i = document.createElement("div")
@@ -215,6 +266,7 @@ function addEnchantmentListItem(item_value) {
 
       let enchant_input_hint = document.createElement("div")
       enchant_input_hint.classList.add("select-box-hint")
+      enchant_input_hint.setAttribute("title", "the enchantment on this item")
       enchant_input_hint.innerText = "Enchant"
 
       let enchant_input = document.createElement("select")
@@ -227,9 +279,10 @@ function addEnchantmentListItem(item_value) {
           let node = e.target
           let value = node.options[node.selectedIndex].value
           let list_item_parent = node.parentNode.parentNode
+          let enchant_list_parent = list_item_parent.parentNode
           if(value.trim() === "") {
-              if(list_item_parent.parentNode.lastElementChild!==list_item_parent)
-                  list_item_parent.parentNode.removeChild(list_item_parent)
+              if(enchant_list_parent.lastElementChild!==list_item_parent)
+                  enchant_list_parent.removeChild(list_item_parent)
               return;
           }
           node.setAttribute("value", value)
@@ -240,9 +293,9 @@ function addEnchantmentListItem(item_value) {
           lv.innerHTML = number_dropdown_content(max_lv_value)
           lv.value = 1
 
-          if(list_item_parent.parentNode.lastElementChild===list_item_parent) {
+          if(enchant_list_parent.lastElementChild===list_item_parent) {
               let item_value = node.getAttribute("list")
-              list_item_parent.parentNode.appendChild(addEnchantmentListItem(item_value))
+              enchant_list_parent.appendChild(addEnchantmentListItem(item_value))
           }
       })
 
@@ -253,6 +306,8 @@ function addEnchantmentListItem(item_value) {
 
       inner.appendChild(wrapper)
       inner.appendChild(wrapper_i)
+
+      attachMoreVerbose(inner)
       return inner
 }
 
@@ -284,7 +339,7 @@ function validate_goal_enchant_node(node) {
         enchant_line.classList.add("highlight")
         //activate mutual exclusive if gp > 0 (has a group)
         //except for protection tier when god armor state is on
-        if(gp > 0 && (!isInProtectionTier(eid) || !isGodArmorState())) {
+        if(gp > 0 && ((!isInProtectionTier(eid) && !isBowInfinityTier(eid)) || !isGodArmorState())) {
             Array.from(document.getElementById("output-enchantments").children)
                 .filter(enchant => enchant.tagName.toUpperCase() === "DIV")
                 .map(enchant => enchant.lastElementChild.children[1]) //the level node
@@ -309,7 +364,10 @@ function addOutputEnchantment(n_group, eid) {
     enchant_line.classList.add("enchantment")
     enchant_line.setAttribute("value", eid)
     enchant_line.setAttribute("lv", 0)
-    enchant_line.innerText = displayfun(parser[eid])
+
+    let enchant_name = document.createElement("span")
+    enchant_name.innerText = displayfun(parser[eid])
+    enchant_name.setAttribute("title", "level 0 enchantment will be ignored")
 
     let lv_wrap = document.createElement("div")
     lv_wrap.classList.add("row-flex")
@@ -337,7 +395,7 @@ function addOutputEnchantment(n_group, eid) {
     let lv_max = document.createElement("div")
     lv_max.classList.add("select-box-hint")
     lv_max.classList.add("cursor-pointer")
-    lv_max.setAttribute("title", "click to max, double click to reset")
+    lv_max.setAttribute("title", "click to set max level, double click to reset")
     lv_max.innerText = "max"
     lv_max.addEventListener("click", e=> {
         let node = e.target
@@ -358,8 +416,9 @@ function addOutputEnchantment(n_group, eid) {
     lv_wrap.appendChild(lv_hint)
     lv_wrap.appendChild(lv_select)
     lv_wrap.appendChild(lv_max)
+    enchant_line.appendChild(enchant_name)
     enchant_line.appendChild(lv_wrap)
-
+    attachMoreVerbose(enchant_line)
     return enchant_line
 }
 
@@ -505,9 +564,11 @@ function reverseLoadPage(packed) {
         selectoutput.value = outputdct["item"]
         selectoutput.dispatchEvent(new Event("change"));
         let protectiontiers = Object.keys(outputdct).filter(eid => isInProtectionTier(eid))
-        if(protectiontiers.length > 1) {
+        let bowInfinityTier = Object.keys(outputdct).filter(eid => isBowInfinityTier(eid))
+        if(protectiontiers.length > 1 || bowInfinityTier.length > 1) {
             loadGodArmor(true)
         }
+
 
         let enchantlist = Array.from(document.getElementById("output-enchantments").children).filter(ele => ele.classList.contains("enchantment"))
         Object.keys(outputdct).filter(ele => ele!=="item").forEach(eid => {
@@ -628,10 +689,19 @@ function validate_input(res_pack) {
     return 0
 }
 
-function progress_indicate(message) {
+function progress_indicate_error(message, success) {
+    let message_node = document.getElementById("error-message")
+    if(success !== true) {
+        message_node.classList.remove("success")
+    } else {
+        message_node.classList.add("success")
+    }
     document.getElementById("error-message").innerText = message
 }
 
+function progress_indicate_quick(message) {
+    document.getElementById("quick-message").innerText = message
+}
 
 function computeSingleBookWeight(eid, lv) {
     let impbed = (eid) => (eid===29&&!isJava?0.5:1)
@@ -672,12 +742,12 @@ Error code:
 -707: too many inputs 6
 */
 function prune() {
-    progress_indicate("parsing")
+    progress_indicate_error("parsing")
     let data_pack = readPage()
     storeInputLocal(data_pack)
     let code = validate_input(data_pack)
     if(code===0) {
-        progress_indicate("searching")
+        progress_indicate_error("searching")
         console.log(data_pack);
         let indctlst = data_pack["inputs"]
         let outdct = data_pack["output"]
@@ -685,7 +755,7 @@ function prune() {
 
         if(indctlst.length===0) {
             //no input, fast search (item + enchanted books)
-            progress_indicate("fast search")
+            progress_indicate_error("fast search")
 
             let outbookdct = {}
             Object.keys(outdct).filter(key => key!=="item").forEach(key => {
@@ -709,11 +779,11 @@ function prune() {
                 res["wrt"] = res_wrt
 
             } else {
-                progress_indicate("select at least 2 enchantmnets")
+                progress_indicate_error("select at least 2 enchantmnets")
             }
         } else {
             //has input, advance search
-            progress_indicate("advance search")
+            progress_indicate_error("advance search")
             let lst = []
             let arrdict = {}
             indctlst.forEach((item,idx) => {
@@ -738,7 +808,7 @@ function prune() {
         }
         console.log(res);
         if(res["anvil_cost"] >= 10000 || res["enchant_cost"] >= 10000) {
-            progress_indicate("items on left don't have enough enchantment levels\n(click on 'enchant with' to add a enchantment\nclick on a number to change level)")
+            progress_indicate_error("items on left don't have enough enchantment levels\n(click on 'enchant with' to add a enchantment\nclick on a number to change level)")
             return
         }
         let tree = new Tree(res["strc"])
@@ -747,8 +817,8 @@ function prune() {
         console.log((tree.root));
         displayTree(tree.root)
         let total_cost = res["enchant_cost"] + res["anvil_cost"]
-        progress_indicate("Cost: " + total_cost
-            + " (" + res["enchant_cost"] + " + " + res["anvil_cost"] + ")")
+        progress_indicate_error("Cost: " + total_cost
+            + " (" + res["enchant_cost"] + " + " + res["anvil_cost"] + ")", true)
     } else {
         let error_message = "error message"
         switch (code) {
@@ -763,7 +833,7 @@ function prune() {
             case -706: error_message = "you have included over 10 items";break;
             case -707: error_message = "you have included over 6 items";break;
         }
-        progress_indicate(error_message)
+        progress_indicate_error(error_message)
     }
 }
 

@@ -4,6 +4,7 @@
         padding-bottom: 128px;
         overflow-x: hidden;
         max-width: 95%;
+        position: relative;
     }
     .pad {
       padding-left: 64px;
@@ -22,6 +23,16 @@
     }
     .div-header {
 
+    }
+
+    .div-footer {
+        position: absolute;
+        bottom: 0;
+        background: var(--color-theme2);
+        height: 20px;
+        width: 120%;
+        margin-left: -74px;
+        margin-bottom: -8px;
     }
 
     .div-header.hide {
@@ -121,6 +132,17 @@
         padding: 5px;
     }
 
+    .input-item-counter, .output-item-label {
+        margin: auto;
+        width: fit-content;
+        padding-left: 14px!important;
+        padding-right: 14px!important;
+    }
+
+    .output-item-label {
+        margin-bottom: 5px;
+    }
+
     .itemselect {
         width: 60%;
     }
@@ -173,13 +195,17 @@
         outline: none;
     }
 
+    .row-flex .select-box-hint:first-child {
+        padding: 0 6px 0 10px;
+    }
+
 
     .select-box-hint {
         height: 34px;
         min-width: 10px;
         background: var(--color-theme2);
         color: white;
-        padding: 0 6px 0 6px;
+        padding: 0 6px 0 8px;
         line-height: 34px;
         font-size: 18px;
     }
@@ -194,6 +220,10 @@
         text-align: center;
         outline: none;
         font-size: 18px;
+    }
+
+    select.select-box-content:hover, .mode-button-des:hover {
+        border: 2px solid var(--color-theme2-opacity);
     }
 
     .enchantment-list-lv-hint {
@@ -273,11 +303,12 @@
     .button {
         margin: auto;
         margin-top: 20px;
-        width: 100px;
         text-align: center;
         height: 40px;
         line-height: 40px;
         font-size: 21px;
+        width: fit-content;
+        padding: 0 16px 0 16px;
     }
 
     .result-tree-button .button {
@@ -288,12 +319,21 @@
         box-shadow: darkgrey 0 0 3px;
     }
 
-    #error-message {
+    .div-message {
         width: 80%;
         text-align: center;
         font-size: 17px;
         margin: auto;
         margin-top: 20px;
+        color: black;
+    }
+
+    #error-message {
+        color: red;
+    }
+
+    #error-message.success {
+        color: var(--color-theme2-opacity);
     }
 
     #result-tree {
@@ -321,7 +361,13 @@
         font-weight: bold;
     }
 
+    [title]:hover:not(.select-box-content) {
+        opacity: 0.75;
+    }
+
     :root {
         --color-theme1: #e1e1e1;
         --color-theme2: #94a5d3;
+        --color-theme2-opacity: #4674f1;
+        --color-theme2-hover: #626262;
     }

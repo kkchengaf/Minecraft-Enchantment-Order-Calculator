@@ -3,6 +3,7 @@
     <meta charset="utf-8"><!-- Primary Meta Tags -->
     <!-- Primary Meta Tags -->
     <title>Minecraft Enchantment Order Calculator</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <meta name="google-site-verification" content="ioA-lrjLj0ssctazZrXavWe0RnkM4eIgbpvHiuwUwG8" />
     <meta name="title" content="Minecraft Enchantment Order Calculator">
     <meta name="description" content="Minecraft optimal enchantment order calculator in anvil. Search the best enchanting order within a second. ">
@@ -31,12 +32,12 @@
             Github: <a href="https://github.com/kkchengaf/Minecraft-Enchantment-Order-Calculator/" target="_blank">Github</a>
         </div>
     </div>
-    <div class="div-guide div-header" title="click on banner to toggler guide">
-        <div class="div-title">
+    <div class="div-guide div-header" >
+        <div class="div-title" title="click on banner to toggler guide">
             Calculate the most optimal enchantment order in Minecraft. There are 2 Modes available:<br>
-            (1) Combining multiple books (with 1 enchantment) to an item: click the item in "You Want" and select the enchantments.<br>
-            (2) Combine multiple enchanted items and books together: add items one by one in "You Have" and select the enchant each.<br>
-            In (2), you can specify the final outcome with enchantments, select them in "You Want".<br><br>
+            (1) Combining multiple books (with 1 enchantment) to an item: specify the item in "Final Outcome" and select the enchantments.<br>
+            (2) Combine multiple enchanted items and books together: add items one by one in "Input Item" Corner and select the enchant.<br>
+            In (2), you can define the outcome with specific enchantments: select the enchantment in "Output Condition".<br><br>
 
             To remove an item/enchant, select the blank option, or set the level to 0. <br>
             Once everything is set, click search. (select at least 3 items/enchantments to search) <br>
@@ -46,16 +47,16 @@
 
 
     <div class="mode-button-group row-flex">
-        <div class="mode-button row-flex cursor-pointer" onclick="switchMode(1)" title="click to switch mode">
-            <div class="select-box-hint mode-button-hint">Mode 1</div>
-            <div class="select-box-content mode-button-des">Single Enchanted Books Search</div>
+        <div class="mode-button row-flex cursor-pointer" onclick="switchMode(1)">
+            <div class="select-box-hint mode-button-hint" title="for 1 item + multiple books">Mode 1</div>
+            <div class="select-box-content mode-button-des" title="switch to mode 1">Single Enchanted Books Search</div>
         </div>
-        <div class="mode-button row-flex cursor-pointer" onclick="switchMode(2)" title="click to switch mode">
-            <div class="select-box-hint mode-button-hint">Mode 2</div>
-            <div class="select-box-content mode-button-des">Advance Combination Search</div>
+        <div class="mode-button row-flex cursor-pointer" onclick="switchMode(2)" >
+            <div class="select-box-hint mode-button-hint" title="for multiple items + books">Mode 2</div>
+            <div class="select-box-content mode-button-des" title="switch to mode 2">Advance Combination Search</div>
         </div>
-        <div class="option-button god-armor-option-button row-flex cursor-pointer" onclick="toggleGodArmor()" title="remove protection mutual exclusive in MC 1.14">
-            <div class="select-box-hint mode-button-hint">God Armor</div>
+        <div class="option-button god-armor-option-button row-flex cursor-pointer" onclick="toggleGodArmor()">
+            <div class="select-box-hint mode-button-hint" title="remove protections mutually exclusive in MC 1.14&#010;remove inifinity mending mutually exclusive from 1.9 to 1.11">God Armor</div>
         </div>
     </div>
 
@@ -66,14 +67,18 @@
 
         <div class="div-col-cell right">
             <div class="" id="output"><hr>
+                <div class="output-item-label select-box-hint" title=""></div>
                 <div class="row-flex">
-                    <div class="select-box-hint">You Want</div>
-                    <select class="select-box-content" name="item" id="selectoutput"></select>
+                    <div class="select-box-hint" id="selectoutputhint">Item Name</div>
+                    <select class="select-box-content" name="item" id="selectoutput" title="select an item"></select>
                 </div>
                 <div class="" id="output-enchantments">
                 </div>
-                <div class="select-box-hint button cursor-pointer" id="search-button" onclick="prune()">Search</div>
-                <div class="" id="error-message"></div>
+                <div class="select-box-hint button cursor-pointer" id="search-button" onclick="prune()" title="search">Search</div>
+
+                <div class="div-message" id="quick-message"></div>
+                <div class="div-message" id="error-message"></div>
+                <div class="div-message" id="result-message"></div>
             </div>
         </div>
     </div>
@@ -92,5 +97,6 @@
     </div>
 
       <script type="text/javascript" src="parse.js"></script>
+
   </body>
 </html>
