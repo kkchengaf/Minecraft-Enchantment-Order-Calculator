@@ -132,7 +132,6 @@ function attachMoreVerbose(node) {
         node = node.querySelectorAll("[title]")
     }
     Array.from(node).forEach(ele => {
-        console.log(ele.getAttribute("title"));
         //hover event is never registered in whole project
         ele.addEventListener("mouseover", e => {
             clearTimeout(message_dismiss_handler)
