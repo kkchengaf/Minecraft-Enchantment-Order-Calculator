@@ -36,7 +36,7 @@ Calculator: https://kkchengaf.github.io/Minecraft-Enchantment-Order-Calculator/
 
 
 ## Mode 2 (search to match target)
-![input_boots3](https://user-images.githubusercontent.com/55171652/171380606-0204bf53-50a3-4cb6-a2fa-4b3e4280ffda.PNG)
+![input_boots3](https://user-images.githubusercontent.com/55171652/171545061-e3713160-b90f-47f1-816d-6ab6d7d306b5.PNG)
 ### Search Result:
 ![enchantments_order_boots3](https://user-images.githubusercontent.com/55171652/171384086-8d1c31ab-0ab4-4c32-9f24-ba22abdee885.png)
 
