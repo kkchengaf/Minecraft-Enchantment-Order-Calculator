@@ -4,10 +4,10 @@ Calculate the most optimal enchantment order in Minecraft (in anvil).
 This program uses precomputed binary trees and greedy search to optimize the performance.
 It searches from the optimal sets to get the best result.
 
-There are 2 modes available in this calculator:
-- combine single enchantment books into tool (fast):
-- combine enchanted books and tools together (advance):
-  - you can also specify the output enchantment
+There are 2 types of search available in this calculator:
+- combine single enchantment books (from villagers) into item (fast):
+- combine enchanted books and tools together into single item (advance):
+  - optioanlly, you can also specify the output enchantment
 
 Supported Features:
 - Items previously combined from anvil (with prior work penalty)
