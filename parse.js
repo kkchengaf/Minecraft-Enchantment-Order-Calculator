@@ -35,7 +35,32 @@ number_dropdown_zero_content = (n) => {
     return options
 }
 enchantment_dropdown = (item) => {
-    return [" "].concat(sorted(enchantbytool[item], key=(a,b)=>a-b)).reduce((acc, eid) => {
+    let main_tool = selectable_tools()[0]
+    let isInTool = (eid) => enchantbytool[main_tool].indexOf(eid)!==-1
+    let isInConflict = (eid) => Object.keys(conflicts).indexOf(eid)!==-1
+    let group_sort = (a,b) => {
+        let inConflicta = isInConflict(a)
+        let inConflictb = isInConflict(b)
+        if((inConflicta && inConflictb) || (!inConflicta && !inConflictb)) {
+            return (a-b);
+        }
+        return (isInConflict(a)?-1:1);
+    }
+    let sorting_fun = group_sort
+    //rank higher for current tools enchantment in enchanted book
+    if(main_tool !== item) {
+        sorting_fun = (a, b) => {
+            let inToola = isInTool(a)
+            let inToolb = isInTool(b)
+            if(inToola && inToolb) {
+                return group_sort(a,b)
+            } else if(inToola || inToolb) {
+                return (inToola?-1:1);
+            }
+            return (a-b);
+        }
+    }
+    return [" "].concat(sorted(enchantbytool[item], key=sorting_fun)).reduce((acc, eid) => {
         return acc + "<option value='"+eid+"'>" + displayfun((parser[eid] || " ")) + "</option>"
     }, "")
 }
@@ -89,7 +114,7 @@ function switchMode(switchTo) {
     })
     document.querySelector(".left").style.display = (switchTo===1?"none":"block")
     document.querySelector(".output-item-label").innerText = (switchTo===1?"Final Outcome":"Output Condition")
-    document.querySelector(".output-item-label").setAttribute("title", (switchTo===1?"the item you want to combine enchanted books to":"restrict the output with specific enchantments (optional)"))
+    document.querySelector(".output-item-label").setAttribute("title", (switchTo===1?"the item you want to make from combining":"restrict the output with specific enchantments (optional)"))
     localStorage.setItem("searchmode", switchTo)
 }
 

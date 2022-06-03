@@ -320,12 +320,16 @@
     }
 
     .div-message {
-        width: 80%;
         text-align: center;
         font-size: 17px;
         margin: auto;
         margin-top: 20px;
         color: black;
+    }
+
+    #quick-message {
+        font-size: 14px;
+        height: 64px;
     }
 
     #error-message {
