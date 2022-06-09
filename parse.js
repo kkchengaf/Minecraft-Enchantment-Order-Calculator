@@ -364,16 +364,16 @@ function validate_goal_enchant_node(node) {
         //activate mutual exclusive if gp > 0 (has a group)
         //except for protection tier when god armor state is on
         if(gp > 0 && ((!isInProtectionTier(eid) && !isBowInfinityTier(eid)) || !isGodArmorState())) {
-            Array.from(document.getElementById("output-enchantments").children)
-                .filter(enchant => enchant.tagName.toUpperCase() === "DIV")
-                .map(enchant => enchant.lastElementChild.children[1]) //the level node
-                .filter(lvnode => parseInt(lvnode.getAttribute("group")) === gp && lvnode!==node)
-                .forEach(lvnode => {
-                    lvnode.setAttribute("level", 0)
-                    lvnode.parentNode.parentNode.classList.remove("highlight")
-                    validate_goal_enchant_node(lvnode)
 
-                })
+          conflicts[eid].forEach(ceid => {
+              let parent = document.getElementById("output-enchantments").querySelector("div[value='"+ceid+"']")
+              if(parent) {
+                  let lvnode = parent.lastElementChild.children[1]
+                  lvnode.setAttribute("level", 0)
+                  lvnode.parentNode.parentNode.classList.remove("highlight")
+                  validate_goal_enchant_node(lvnode)
+              }
+          })
         }
     } else {
         enchant_line.classList.remove("highlight")
@@ -832,7 +832,7 @@ function prune() {
         }
         console.log(res);
         if(res["anvil_cost"] >= 10000 || res["enchant_cost"] >= 10000) {
-            progress_indicate_error("items on left don't have enough enchantment levels\n(click on 'enchant with' to add a enchantment\nclick on a number to change level)")
+            progress_indicate_error("items on left don't have enough enchantment levels\n(select a enchantment in 'enchant'\nclick on the number to change level)")
             return
         }
         let tree = new Tree(res["strc"])
