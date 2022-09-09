@@ -68,6 +68,21 @@
       max-width: 97%;
       margin-bottom: 8px;
     }
+
+    .history-button-group {
+      margin-bottom: 8px;
+      justify-content: flex-end;
+    }
+
+    .history-button-group div {
+      margin-left: 4px;
+    }
+
+    .history-button-group .mode-button-hint {
+      width: 60px;
+      text-align: center;
+    }
+
     .mode-button-group {
       justify-content: flex-start;
     }
@@ -126,6 +141,9 @@
       height: 32px;
       font-size:18px;
     }
+    select option {
+      font-size: 1.2em;
+    }
 
     .row-item-name {
         justify-content: flex-start;
@@ -137,6 +155,10 @@
         width: fit-content;
         padding-left: 14px!important;
         padding-right: 14px!important;
+    }
+
+    .clickable {
+        cursor: pointer;
     }
 
     .output-item-label {

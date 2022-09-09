@@ -70,15 +70,16 @@ isGodArmorState = () => {
 
 
 function updateDropDown(node) {
-    if(node===undefined || node===null)
-        document.getElementById("selectoutput").innerHTML = [" "].concat(selectable_tools()).reduce((acc, cur) => acc + "<option value=" +cur+">"+cur.replaceAll("_", " ")+"</option>", "")
+    if(node===undefined || node===null) {
+      document.getElementById("selectoutput").innerHTML = [" "].concat(selectable_tools()).reduce((acc, cur) => acc + "<option value=" +cur+">" + cur.replaceAll("_", " ")+"</option>", "")
+    }
 
     Array.from(document.querySelectorAll("#input .itemselect"))
             .filter(ele=>ele!==node && (ele.getAttribute("value")===undefined
                     || ele.getAttribute("value")===null
                     || ele.getAttribute("value").trim()===""))
             .forEach(ele =>
-        ele.innerHTML = [" "].concat(selectable_tools()).reduce((acc, cur) => acc + "<option value=" +cur+">"+cur.replaceAll("_", " ")+"</option>", "")
+        ele.innerHTML = [" "].concat(selectable_tools()).reduce((acc, cur) => acc + "<option value=" +cur+">" + cur.replaceAll("_", " ")+"</option>", "")
     )
 }
 
@@ -185,6 +186,44 @@ function recycleEnchantCounter(enchlistnode) {
       })
 }
 
+function cloneInputItem(node) {
+      let dup = addInputItem()
+      let nodeitem = node.querySelector(".itemselect")
+      dup.querySelector(".itemselect").selectedIndex =
+            Array.apply(null, dup.querySelector(".itemselect").options)
+            .map(ele => ele.value)
+            .indexOf(nodeitem.options[nodeitem.selectedIndex].value)
+      dup.querySelector(".itemselect").dispatchEvent(new Event("change"));
+
+      dup.querySelector(".priorwork select").selectedIndex = node.querySelector(".priorwork select").selectedIndex
+
+      Array.from(node.querySelectorAll(".enchantment-list-item"))
+      .filter((ele, idx, arr) => arr.length > 1 && idx < arr.length - 1)
+      .forEach(enchlistnode => {
+          let lastEnchantNodeDup = dup.querySelector(".enchantment-list-input:last-child")
+          let enchantitem = enchlistnode.querySelector(".enchantment-list-input")
+          lastEnchantNodeDup.selectedIndex =
+                Array.apply(null, lastEnchantNodeDup.options)
+                .map(ele => ele.value)
+                .indexOf(enchantitem.options[enchantitem.selectedIndex].value)
+          lastEnchantNodeDup.dispatchEvent(new Event("change"));
+
+          lastEnchantNodeDup.parentNode.parentNode.querySelector(".enchantment-list-lv").selectedIndex =
+              enchlistnode.querySelector(".enchantment-list-lv").selectedIndex
+      })
+
+      node.parentNode.insertBefore(dup, node)
+      recycleInputCounter()
+}
+
+function convertClonable(node) {
+      node.classList.add("clickable")
+      node.setAttribute("title", "the item to be combined in anvil\n   (click to clone this item)")
+      node.addEventListener("click", e => {
+          cloneInputItem(e.target.parentNode)
+      })
+}
+
 function addInputItem() {
       let outer = document.createElement("div")
       outer.classList.add("input-enchant-item")
@@ -205,7 +244,7 @@ function addInputItem() {
       dropdownhint.innerHTML = "Item Name"
 
       let dropdown = document.createElement("select")
-      dropdown.innerHTML = [" "].concat(selectable_tools()).reduce((acc, cur) => acc + "<option value=" +cur+">"+cur.replaceAll("_", " ")+"</option>", "")
+      dropdown.innerHTML = [" "].concat(selectable_tools()).reduce((acc, cur) => acc + "<option value=" +cur+">" + cur.replaceAll("_", " ")+"</option>", "")
       dropdown.classList.add("itemselect")
       dropdown.classList.add("select-box-content")
       dropdown.setAttribute("title", "select an item")
@@ -214,6 +253,7 @@ function addInputItem() {
           let value = node.value
           let itemnode = node.parentNode.parentNode
           let enchlist = itemnode.lastElementChild
+          convertClonable(itemnode.querySelector(".input-item-counter"))
           enchlist.setAttribute("value", value)
           node.setAttribute("value", value)
           updateDropDown(node)
@@ -223,7 +263,8 @@ function addInputItem() {
               return;
           }
           if(itemnode.lastElementChild===node.parentNode) {
-              document.getElementById("input").appendChild(addInputItem())
+              if(document.getElementById("input").lastElementChild === node.parentNode.parentNode)
+                  document.getElementById("input").appendChild(addInputItem())
           } else {
               itemnode.removeChild(itemnode.lastElementChild)
               itemnode.removeChild(itemnode.lastElementChild)
@@ -647,6 +688,16 @@ function reverseLoadPage(packed) {
 }
 
 
+function historyReset() {
+    reverseLoadPage({"inputs":[],"output":{}})
+}
+
+function historyReload() {
+    let packed_str = localStorage.getItem("enchant_pack") || '{"inputs":[],"output":{}}'
+    reverseLoadPage(JSON.parse(packed_str))
+}
+
+
 /*
 possible errors:
 conflicts items within inputs
@@ -708,7 +759,7 @@ function validate_input(res_pack) {
         return -706;
     }
     let priorcnt = indctlst.map(ele => (ele["prior"] | 0)).filter(ele => ele!==0).length
-    if(priorcnt>0 && indctlst.length >6)
+    if(priorcnt>0 && indctlst.length >8)
         return -707;
     return 0
 }
@@ -747,6 +798,26 @@ function computeWeight(dct) {
     return res_lst
 }
 
+
+function handleSearchResult(res) {
+    console.log(res);
+    if(res["anvil_cost"] >= 10000 || res["enchant_cost"] >= 10000) {
+        progress_indicate_error("items on left don't have enough enchantment levels\n(select a enchantment in 'enchant'\nclick on the number to change level)")
+        return
+    }
+    let tree = new Tree(res["strc"])
+    tree.set_god_armor(isGodArmorState())
+    tree.tree_sum(res["wrt"])
+    console.log((tree.root));
+    displayTree(tree.root)
+    let total_cost = res["enchant_cost"] + res["anvil_cost"]
+    progress_indicate_error("Cost: " + total_cost
+        + " (" + res["enchant_cost"] + " + " + res["anvil_cost"] + ")", true)
+}
+
+
+
+
 /*
 Possible prune:
 output only => fast search
@@ -765,14 +836,18 @@ Error code:
 -706: too many inputs 8
 -707: too many inputs 6
 */
+var prunable_flag = true
+
 function prune() {
+    if(!prunable_flag)
+        return
     progress_indicate_error("parsing")
-    let data_pack = readPage()
-    storeInputLocal(data_pack)
+    let data_pack = storeInputLocal()
+    console.log(data_pack);
+
     let code = validate_input(data_pack)
     if(code===0) {
         progress_indicate_error("searching")
-        console.log(data_pack);
         let indctlst = data_pack["inputs"]
         let outdct = data_pack["output"]
         let res = null
@@ -801,7 +876,7 @@ function prune() {
                 })
 
                 res["wrt"] = res_wrt
-
+                handleSearchResult(res)
             } else {
                 progress_indicate_error("select at least 2 enchantmnets")
             }
@@ -827,22 +902,23 @@ function prune() {
             //attach "prior" if prior work item exist
             let priorcnt = indctlst.map(ele => (ele["prior"] | 0)).filter(ele => ele!==0)
             arrdict["prior"] = priorcnt.length
+            prunable_flag = false
 
-            res = search(lst, arrdict, isGodArmorState())
+            //res = search(lst, arrdict, isGodArmorState())
+            worker = new Worker("search.js")
+            worker.postMessage([lst, arrdict, isGodArmorState()])
+            worker.addEventListener("message", e => {
+                if(e.data) {
+                    let prog_message = e.data
+                    if(prog_message["type"]==="result") {
+                        handleSearchResult(prog_message["data"])
+                        prunable_flag = true
+                    } else if(prog_message["type"]==="message") {
+                        progress_indicate_error(prog_message["data"], true)
+                    }
+                }
+            })
         }
-        console.log(res);
-        if(res["anvil_cost"] >= 10000 || res["enchant_cost"] >= 10000) {
-            progress_indicate_error("items on left don't have enough enchantment levels\n(select a enchantment in 'enchant'\nclick on the number to change level)")
-            return
-        }
-        let tree = new Tree(res["strc"])
-        tree.set_god_armor(isGodArmorState())
-        tree.tree_sum(res["wrt"])
-        console.log((tree.root));
-        displayTree(tree.root)
-        let total_cost = res["enchant_cost"] + res["anvil_cost"]
-        progress_indicate_error("Cost: " + total_cost
-            + " (" + res["enchant_cost"] + " + " + res["anvil_cost"] + ")", true)
     } else {
         let error_message = "error message"
         switch (code) {
@@ -855,7 +931,7 @@ function prune() {
             case -704: error_message = "unknown enchantment in your item";break;
             case -705: error_message = "conflicted enchantments in your item";break;
             case -706: error_message = "you have included over 10 items";break;
-            case -707: error_message = "you have included over 6 items";break;
+            case -707: error_message = "you have included over 8 items";break;
         }
         progress_indicate_error(error_message)
     }
@@ -973,8 +1049,10 @@ function loadTree(node) {
     return loadNodeValue(node.value)
 }
 
-function storeInputLocal(packed) {
+function storeInputLocal() {
+    let packed = readPage()
     localStorage.setItem("enchant_pack", JSON.stringify(packed))
+    return packed
 }
 
 function addSaveButton() {
@@ -1080,3 +1158,5 @@ body.addEventListener("drop", e=> {
     }
     validateDroppedPng(files[0], reverseLoadPage)
 })
+
+historyReload()

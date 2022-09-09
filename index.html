@@ -19,7 +19,6 @@
     <meta property="twitter:title" content="Minecraft Enchantment Order Calculator">
     <meta property="twitter:description" content="Minecraft optimal enchantment order calculator in anvil. Search the best enchanting order within a second. ">
       <link rel="stylesheet" href="style.css">
-      <script type="text/javascript" src="magicstring.js"></script>
       <script type="text/javascript" src="search.js"></script>
   </head>
   <body class="pad pad-top">
@@ -40,11 +39,17 @@
             In (2), you can define the outcome with specific enchantments: select the enchantment in "Output Condition".<br><br>
 
             To remove an item/enchant, select the blank option, or set the level to 0. <br>
-            Once everything is set, click search. (select at least 3 items/enchantments to search) <br>
+            Once everything is set, click search. (add at least 3 items/enchantments to search) <br>
             You can save the search result as image, and reload it by dragging the image into this page.<br>
         </div>
     </div>
 
+
+    <div class="history-button-group row-flex">
+        <div class="reset-option-button row-flex cursor-pointer" onclick="historyReset()">
+            <div class="select-box-hint mode-button-hint" title="reset workspace">Reset</div>
+        </div>
+    </div>
 
     <div class="mode-button-group row-flex">
         <div class="mode-button row-flex cursor-pointer" onclick="switchMode(1)">
@@ -80,7 +85,7 @@
                 </div>
                 <div class="" id="output-enchantments">
                 </div>
-                <div class="select-box-hint button cursor-pointer" id="search-button" onclick="prune()" title="search">Search</div>
+                <div class="select-box-hint button cursor-pointer" id="search-button" onclick="prune()" title="search (cache workspace)">Search</div>
 
                 <div class="div-message" id="quick-message"></div>
                 <div class="div-message" id="error-message"></div>
