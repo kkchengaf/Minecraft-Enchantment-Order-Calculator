@@ -689,7 +689,13 @@ function reverseLoadPage(packed) {
 
 
 function historyReset() {
-    reverseLoadPage({"inputs":[],"output":{}})
+    let input = document.getElementById("input")
+    input.innerHTML = ""
+    input.appendChild(addInputItem())
+
+    let selectoutput = document.getElementById("selectoutput")
+    selectoutput.selectedIndex = 0
+    selectoutput.dispatchEvent(new Event("change"))
 }
 
 function historyReload() {
