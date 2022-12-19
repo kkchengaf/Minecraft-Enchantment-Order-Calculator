@@ -353,7 +353,7 @@ function addEnchantmentListItem(item_value) {
           node.setAttribute("value", value)
           let lv = list_item_parent.querySelector(".enchantment-list-lv")
           let max_lv_value = max_lv[Number(value).toString()]
-          lv.setAttribute("contenteditable", 'true')
+          lv.setAttribute("contenteditable", 'false')
           lv.setAttribute("max_lv", max_lv_value)
           lv.innerHTML = number_dropdown_content(max_lv_value)
           lv.value = 1
