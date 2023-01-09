@@ -1,6 +1,8 @@
 # Minecraft-Enchantment-Order-Calculator
 Calculate the most optimal enchantment order in Minecraft (in anvil).
 
+Calculator: https://kkchengaf.github.io/Minecraft-Enchantment-Order-Calculator/
+
 This program uses precomputed binary trees and greedy search to optimize the performance.
 It searches from the optimal sets to get the best result.
 
@@ -66,7 +68,6 @@ Supported Features:
 - God Armor search (where protection enchantments are not mutually exclusive from MC 1.14 to 1.14.2)
 
 
-Calculator: https://kkchengaf.github.io/Minecraft-Enchantment-Order-Calculator/
 
 ## Mode 1 (single enchantment search)
 ![input_boots1](https://user-images.githubusercontent.com/55171652/171546996-b56b6cbb-7823-4d75-9acf-46ba0c949a2b.PNG)
