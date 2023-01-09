@@ -761,7 +761,7 @@ function validate_input(res_pack) {
             }
         }
     }
-    if(indctlst.length > 10 || Object.keys(outdct).length > 10) {
+    if(indctlst.length > 11 || Object.keys(outdct).length > 11) {
         return -706;
     }
     let priorcnt = indctlst.map(ele => (ele["prior"] | 0)).filter(ele => ele!==0).length
@@ -936,7 +936,7 @@ function prune() {
             case -703: error_message = "cannot combine (your item not match)";break;
             case -704: error_message = "unknown enchantment in your item";break;
             case -705: error_message = "conflicted enchantments in your item";break;
-            case -706: error_message = "you have included over 10 items";break;
+            case -706: error_message = "you have included over 11 items";break;
             case -707: error_message = "you have included over 8 items";break;
         }
         progress_indicate_error(error_message)
