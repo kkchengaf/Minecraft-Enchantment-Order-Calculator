@@ -1,3 +1,30 @@
+dict = JSON.parse(magicstring0)
+andt = JSON.parse(magicstring1)
+advn = JSON.parse(magicstring2)
+
+/*
+compatible
+max lv
+enchant cost
+tools available enchant
+
+
+dict: {eid: [] }
+*/
+
+conflicts = advn["conflicts"]
+enchantbytool = advn["enchantbytool"]
+isJava = true
+protectionTier = [0,1,3,4]
+bowInfinityTier = [22,26]
+isInProtectionTier = (eid) => {
+    return protectionTier.indexOf(parseInt(eid))!==-1
+}
+isBowInfinityTier = (eid) => {
+    return bowInfinityTier.indexOf(parseInt(eid))!==-1
+}
+anvil_cost_idxer = [0,1,3,7,15,31,63,127,255]
+
 parser = advn["idmap"]
 max_lv = advn["max_lv"]
 cost_book = advn["enchant_cost"]["book"]
@@ -811,9 +838,8 @@ function handleSearchResult(res) {
         progress_indicate_error("items on left don't have enough enchantment levels\n(select a enchantment in 'enchant'\nclick on the number to change level)")
         return
     }
-    let tree = new Tree(res["strc"])
-    tree.set_god_armor(isGodArmorState())
-    tree.tree_sum(res["wrt"])
+    let tree = res["strc"]
+    tree.godarmor = isGodArmorState()
     console.log((tree.root));
     displayTree(tree.root)
     let total_cost = res["enchant_cost"] + res["anvil_cost"]
@@ -912,7 +938,8 @@ function prune() {
 
             //res = search(lst, arrdict, isGodArmorState())
             worker = new Worker("search.js")
-            worker.postMessage([lst, arrdict, isGodArmorState()])
+            worker.postMessage({"type": "context", "data": [dict, andt, advn, isJava, protectionTier, bowInfinityTier, anvil_cost_idxer]})
+            worker.postMessage({"type": "input", "data": [lst, arrdict, isGodArmorState()]})
             worker.addEventListener("message", e => {
                 if(e.data) {
                     let prog_message = e.data
