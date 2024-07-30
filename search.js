@@ -1,4 +1,4 @@
-var dict, andt, advn, isJava, isInProtectionTier, isBowInfinityTier, anvil_cost_idxer, conflicts, enchantbytool;
+var dict, andt, advn, isJava, isInProtectionTier, isBowInfinityTier, anvil_cost_idxer, conflicts, enchantbytool, cost_book;
 
 function sort_sum(lst, base){
     let dist = base.length - lst.length
@@ -268,6 +268,12 @@ function tree_sum(lst, arrdict, strc, godarmor) {
 }
 
 
+function computeSingleBookWeight(eid, lv) {
+  let impbed = (eid) => (eid===29&&!isJava?0.5:1)
+  return cost_book[eid] * lv * impbed(eid)
+}
+
+
 function argsort(arr, reverse) {
     if(reverse===true) {
         return Array.from(Array(arr.length).keys()).sort((a,b) => arr[b] - arr[a])
@@ -312,7 +318,7 @@ function show_progress(cur, total, cases) {
 
 
 
-function search(arr, arrdict, godarmor) {
+function search(arr, arrdict, godarmor, outdct, outbookdct) {
      n = arr.length
      n_max = 10
      anvil_dict = dict[Number(n).toString()]
@@ -361,8 +367,20 @@ function search(arr, arrdict, godarmor) {
               wrt_arr = res["item"]["min_lst"]
           } else {
               wrt_arr = wrt_sort(arr, res["item"]["flat"])
+
+              let res_wrt = [{"cost":0, "enchant":{"item":outdct["item"]}}]
+              wrt_arr.filter(ele => ele > 0).forEach((w, wrtidx) => {
+                  let cureid = Object.keys(outbookdct).filter(eid => outbookdct[eid]>0 &&computeSingleBookWeight(eid, outbookdct[eid])===w)[0]
+                  let tmpdct = {"cost": w, "enchant": {}}
+                  tmpdct["enchant"][cureid] = outbookdct[cureid]
+                  res_wrt.push(tmpdct)
+                  outbookdct[cureid] = 0
+              })
+
+              wrt_arr = res_wrt
           }
           strc = new Tree(res["item"]["strc"])
+          strc.godarmor = godarmor
           strc.tree_sum(wrt_arr)
           return {"wrt":wrt_arr, "strc":strc.serialize(),
                     "anvil_cost":res["anvil_cost"],"enchant_cost":res["enchant_cost"]}
@@ -375,7 +393,7 @@ self.addEventListener("message", e => {
         switch (e.data.type) {
             case "context":
                 let protectionTier, bowInfinityTier
-                [dict, andt, advn, isJava, protectionTier, bowInfinityTier, anvil_cost_idxer] = e.data.data
+                [dict, andt, advn, isJava, protectionTier, bowInfinityTier, anvil_cost_idxer, cost_book] = e.data.data
                 conflicts = advn["conflicts"]
                 enchantbytool = advn["enchantbytool"]
                 isInProtectionTier = (eid) => {
@@ -386,9 +404,9 @@ self.addEventListener("message", e => {
                 }
                 break
             case "input":
-                let [arr, arrdict, godarmor] = e.data.data
+                let [arr, arrdict, godarmor, outdct, outbookdct] = e.data.data
                 //console.log(arr, arrdict, godarmor);
-                postMessage({"type":"result","data":search(arr, arrdict, godarmor)})
+                postMessage({"type":"result","data":search(arr, arrdict, godarmor, outdct, outbookdct)})
                 close()
                 break
         }

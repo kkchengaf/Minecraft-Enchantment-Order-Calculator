@@ -811,11 +811,6 @@ function progress_indicate_quick(message) {
     document.getElementById("quick-message").innerText = message
 }
 
-function computeSingleBookWeight(eid, lv) {
-    let impbed = (eid) => (eid===29&&!isJava?0.5:1)
-    return cost_book[eid] * lv * impbed(eid)
-}
-
 
 /*
 input: {id:lv, item:"item_name"}
@@ -839,7 +834,6 @@ function handleSearchResult(res) {
         return
     }
     let tree = res["strc"]
-    tree.godarmor = isGodArmorState()
     console.log((tree.root));
     displayTree(tree.root)
     let total_cost = res["enchant_cost"] + res["anvil_cost"]
@@ -870,7 +864,7 @@ Error code:
 */
 var prunable_flag = true
 
-function prune() {
+async function prune() {
     if(!prunable_flag)
         return
     progress_indicate_error("parsing")
@@ -896,18 +890,7 @@ function prune() {
             let lst = computeWeight(outbookdct)
             lst.splice(0,0,0)
             if(lst.length >= 3 ) {
-                res = search(lst)
-
-                let res_wrt = [{"cost":0, "enchant":{"item":outdct["item"]}}]
-                res["wrt"].filter(ele => ele > 0).forEach((w, wrtidx) => {
-                    let cureid = Object.keys(outbookdct).filter(eid => outbookdct[eid]>0 &&computeSingleBookWeight(eid, outbookdct[eid])===w)[0]
-                    let tmpdct = {"cost": w, "enchant": {}}
-                    tmpdct["enchant"][cureid] = outbookdct[cureid]
-                    res_wrt.push(tmpdct)
-                    outbookdct[cureid] = 0
-                })
-
-                res["wrt"] = res_wrt
+                res = await search(lst, undefined, undefined, outdct, outbookdct)
                 handleSearchResult(res)
             } else {
                 progress_indicate_error("select at least 2 enchantmnets")
@@ -936,21 +919,9 @@ function prune() {
             arrdict["prior"] = priorcnt.length
             prunable_flag = false
 
-            //res = search(lst, arrdict, isGodArmorState())
-            worker = new Worker("search.js")
-            worker.postMessage({"type": "context", "data": [dict, andt, advn, isJava, protectionTier, bowInfinityTier, anvil_cost_idxer]})
-            worker.postMessage({"type": "input", "data": [lst, arrdict, isGodArmorState()]})
-            worker.addEventListener("message", e => {
-                if(e.data) {
-                    let prog_message = e.data
-                    if(prog_message["type"]==="result") {
-                        handleSearchResult(prog_message["data"])
-                        prunable_flag = true
-                    } else if(prog_message["type"]==="message") {
-                        progress_indicate_error(prog_message["data"], true)
-                    }
-                }
-            })
+            res = await search(lst, arrdict, isGodArmorState())
+            handleSearchResult(res)
+            prunable_flag = true
         }
     } else {
         let error_message = "error message"
@@ -968,6 +939,24 @@ function prune() {
         }
         progress_indicate_error(error_message)
     }
+}
+
+function search(arr, arrdict, godarmor, outdct, outbookdct) {
+    return new Promise((resolve) => {
+        worker = new Worker("search.js")
+        worker.postMessage({"type": "context", "data": [dict, andt, advn, isJava, protectionTier, bowInfinityTier, anvil_cost_idxer, cost_book]})
+        worker.postMessage({"type": "input", "data": [arr, arrdict, godarmor, outdct, outbookdct]})
+        worker.addEventListener("message", e => {
+            if(e.data) {
+                let prog_message = e.data
+                if(prog_message["type"]==="result") {
+                    resolve(prog_message["data"])
+                } else if(prog_message["type"]==="message") {
+                    progress_indicate_error(prog_message["data"], true)
+                }
+            }
+        })
+    })
 }
 
 
