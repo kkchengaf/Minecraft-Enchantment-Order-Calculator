@@ -57,6 +57,16 @@
 
     }
 
+    .no-select {
+      -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Old versions of Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
+    }
+
     .right-align {
       cursor: auto;
       font-size: 12px;
@@ -135,6 +145,10 @@
     #input,#output {
       font-size:18px;
     }
+    #output {
+      position: sticky;
+      top: 10px;
+    }
 
     select {
       margin-bottom: 12px;
@@ -155,6 +169,17 @@
         width: fit-content;
         padding-left: 14px!important;
         padding-right: 14px!important;
+    }
+
+    .bypass-button {
+        position: absolute;
+        cursor: pointer;
+        top: 6px;
+        right: 6px;
+        font-size: 14px !important;
+        padding: 0 5px 0 7px !important;
+        line-height: 28px !important;
+        height: 28px !important;
     }
 
     .clickable {
@@ -178,10 +203,16 @@
         margin-top: 30px;
     }
 
+
     .input-enchant-item {
         background: var(--color-theme1);
         padding-left: 8px;
         padding-bottom: 13px;
+        position: relative;
+    }
+
+    .input-enchant-item.bypass {
+        opacity: 0.4;
     }
 
     .input-enchant-item hr{
@@ -201,7 +232,7 @@
       line-height: 34px;
     }
 
-    .enchantment:hover {
+    .enchantment:hover,  {
       background-color: var(--color-theme1);
     }
 
@@ -213,6 +244,27 @@
         position: relative;
     }
 
+    .enchantment-list-remove-button {
+        width: 24px;
+        text-align: center;
+        line-height: 24px !important;
+        padding: 0 7px 0 7px;
+        margin-left: -20px;
+        padding: 0 !important;
+        margin-right: 2px;
+        height: 24px !important;
+        font-size: 16px !important;
+    }
+
+    .enchantment-list-remove-button:hover {
+        opacity: 0.75;
+    }
+
+    .enchantment-list-remove-button.hide {
+        opacity: 0;
+        pointer-events: none;
+    }
+
     .enchantment .lv,.enchantment-list-lv {
         outline: none;
     }
@@ -222,7 +274,7 @@
     }
 
 
-    .select-box-hint {
+    .select-box-hint, .enchantment-list-remove-button {
         height: 34px;
         min-width: 10px;
         background: var(--color-theme2);

@@ -1,0 +1,9 @@
+open simplifiedstring.json in json editor
+1. for tools:
+  -in "enchantbytool", add a mapping of tool name to a list of enchantment id
+2. for enchantments:
+  -in "raw", add an array in the following format: [id, name, max_level_roman, enchant_cost_item, enchant_cost_book]
+  -(if any) in "conflicts", add a mapping of enchantment id to a list of conflicting enchantment id
+  -(if any) in "conflicts", add the enchantment id to the list of other conflicting enchantment id
+
+save "simplifiedstring.json", collapse the json string and copypaste the value overwriting to the variable "simplified" in "parse.js"
