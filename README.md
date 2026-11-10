@@ -67,6 +67,16 @@ Supported Features:
 - Save result as image 
 - Reload the result (drag and drop the image into the page)
 - God Armor (where protection enchantments are not mutually exclusive from MC 1.14 to 1.14.2)
+- Spear, including Lunge III (compatible with Mending), and the usual damage, Looting, Knockback, Fire Aspect, Unbreaking, and curse enchantments
+- Mace, including Density V, Breach IV, and Wind Burst III; Density, Breach, Smite, and Bane of Arthropods are mutually exclusive
+
+Weapon enchantment rules and anvil multipliers follow the current [Spear](https://minecraft.wiki/w/Spear), [Lunge](https://minecraft.wiki/w/Lunge), [Mace](https://minecraft.wiki/w/Mace), and [Anvil mechanics](https://minecraft.wiki/w/Anvil_mechanics) pages on Minecraft Wiki. Spears of all materials share the `spear` entry, just as swords share `sword`.
+
+Regression checks for weapon applicability, enchantment levels and costs, conflicts, and both search modes can be run with Node.js 18 or newer:
+
+```sh
+node --test
+```
 
 
 ## Mode 1 (fast search)
